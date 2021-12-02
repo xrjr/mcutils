@@ -1,0 +1,7 @@
+*
+!*.md
+!*.go
+!.gitignore
+!go.mod
+!*/
+!.github/**
