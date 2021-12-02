@@ -20,6 +20,8 @@ All protocols have been implemented using [wiki.vg](https://wiki.vg/). All of th
 
 This project also contains an helper in communication with tcp/udp, called `pkg/networking`.
 
+This project has no dependency.
+
 ### Supported protocols
 
 - [Ping](https://wiki.vg/Server_List_Ping) (Server List Ping)
@@ -38,10 +40,10 @@ This project also contains an helper in communication with tcp/udp, called `pkg/
 
 ## CLI
 
-### Build
+### Install
 
 ```shell
-go build ./cmd/mcutils
+go install github.com/xrjr/mcutils/cmd/mcutils
 ```
 
 ### Usage
