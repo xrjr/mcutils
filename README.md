@@ -24,7 +24,7 @@ This project has no dependency.
 
 ### Supported protocols
 
-- [Ping](https://wiki.vg/Server_List_Ping) (Server List Ping, 1.7+)
+- [Ping](https://wiki.vg/Server_List_Ping) (Server List Ping)
 
 - [Query](https://wiki.vg/Query)
 
@@ -36,7 +36,7 @@ This project has no dependency.
 >
 > Rcon implementation supports fragmented response packets.
 >
-> Ping protocol changed in 1.7 in a non-backwards compatible way. Only 1.7+ ping protocol is supported at the moment.
+> Ping protocol changed in 1.7 in a non-backwards compatible way. Both modern and legacy SLP are supported.
 
 
 
@@ -52,6 +52,13 @@ go install github.com/xrjr/mcutils/cmd/mcutils@latest
 
 ```shell
 $ mcutils ping <hostname> <port>
+Example : mcutils ping localhost 25565
+
+$ mcutils ping-legacy <hostname> <port>
+Example : mcutils ping localhost 25565
+
+$ mcutils ping-legacy-1.6.4 <hostname> <port>
+Same as ping-legacy, but sends 1.6 SLP informations into the request
 Example : mcutils ping localhost 25565
 
 $ mcutils query <basic|full> <hostname> <port>
@@ -70,6 +77,16 @@ Example : mcutils rcon localhost 25575 mypassword "say hello"
 ```go
 // Ping returns the server list ping infos (JSON-like object), and latency of a minecraft server.
 properties, latency, err := ping.Ping("localhost", 25565)
+```
+
+```go
+// Ping returns the legacy server list ping infos, and latency of a minecraft server.
+properties, latency, err := ping.PingLegacy("localhost", 25565)
+```
+
+```go
+// Ping returns the legacy server list ping infos (with 1.6+ SLP), and latency of a minecraft server.
+properties, latency, err := ping.PingLegacy1_6_4("localhost", 25565)
 ```
 
 ### Query
@@ -111,6 +128,22 @@ pong, err := pingclient.Ping()
 
 // Disconnect closes the connection
 err = pingclient.Disconnect()
+```
+
+```go
+legacypingclient := ping.NewClientLegacy("localhost", 25565)
+
+// Connect opens the connection, and can raise an error for example if the server is unreachable
+err := legacypingclient.Connect()
+
+// Ping requests for informations and latency of a server, using legacy SLP.
+infos, latency, err := legacypingclient.Ping()
+
+// Same as Ping, but uses 1.6+ SLP. Only one call to Ping or Ping1_6_4 should be done per opened connection.
+infos, latency, err := legacypingclient.Ping1_6_4()
+
+// Disconnect closes the connection
+err = legacypingclient.Disconnect()
 ```
 
 ### Query
