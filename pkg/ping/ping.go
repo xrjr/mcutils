@@ -1,5 +1,5 @@
 // ping package implements the mincraft Server List Ping protocol.
-// This package is strictly compliant with the following documentation : https://wiki.vg/Server_List_Ping
+// This package is strictly compliant with the following documentation : https://wiki.vg/Server_List_Ping.
 package ping
 
 // Ping returns the server list ping infos (JSON-like object), and latency of a minecraft server.

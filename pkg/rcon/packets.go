@@ -2,7 +2,7 @@ package rcon
 
 import "github.com/xrjr/mcutils/pkg/networking"
 
-// packet is the structure representing an entire rcon packet, including the padding at the end
+// packet is the structure representing an entire rcon packet, including the padding at the end.
 type packet struct {
 	Length    uint32
 	RequestID int32
@@ -11,7 +11,7 @@ type packet struct {
 	Padding   byte
 }
 
-// transformToPacket transforms an output payload into a readable rcon packet, adding the length at the start
+// transformToPacket transforms an output payload into a readable rcon packet, adding the length at the start.
 func transformToPacket(out networking.Output) networking.Output {
 	var packetOut networking.Output = networking.NewOutput()
 

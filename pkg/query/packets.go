@@ -1,18 +1,18 @@
 package query
 
-// packet is the common structure conatained in all query datagrams
+// packet is the common structure conatained in all query datagrams.
 type packet struct {
 	Type      byte
 	SessionID uint32
 }
 
-// handshakeResponse is the type respresenting the response of the handshake query
+// handshakeResponse is the type respresenting the response of the handshake query.
 type handshakeResponse struct {
 	packet
 	ChallengeToken uint32
 }
 
-// basicStatResponse is the type respresenting the response of the basic stat query
+// basicStatResponse is the type respresenting the response of the basic stat query.
 type basicStatResponse struct {
 	packet
 	MOTD       string
@@ -37,7 +37,7 @@ func (bsr *basicStatResponse) basicStat() BasicStat {
 	}
 }
 
-// fullStatResponse is the type respresenting the response of the full stat query
+// fullStatResponse is the type respresenting the response of the full stat query.
 type fullStatResponse struct {
 	packet
 	Padding1       [11]byte
@@ -54,7 +54,7 @@ func (fsr *fullStatResponse) fullStat() FullStat {
 	}
 }
 
-// BasicStat is the user-friendly/user-returnable version of basicStatResponse
+// BasicStat contains basic stat query informations.
 type BasicStat struct {
 	MOTD       string `json:"motd"`
 	GameType   string `json:"gameType"`
@@ -65,7 +65,7 @@ type BasicStat struct {
 	HostIP     string `json:"hostIp"`
 }
 
-// FullStat is the user-friendly/user-returnable version of fullStatResponse
+// FullStat contains full stat query informations.
 type FullStat struct {
 	Properties    map[string]string `json:"properties"`
 	OnlinePlayers []string          `json:"onlinePlayers"`

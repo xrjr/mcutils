@@ -1,21 +1,25 @@
 package ping
 
+// infosVersion is version type of Infos.
 type infosVersion struct {
 	Name     string `json:"name"`
 	Protocol int    `json:"protocol"`
 }
 
+// infosPlayersSample is sample type of Infos.Players.
 type infosPlayersSample struct {
 	Name string `json:"name"`
 	ID   string `json:"id"`
 }
 
+// infosPlayers is version type of Infos.
 type infosPlayers struct {
 	Max    int                  `json:"max"`
 	Online int                  `json:"online"`
 	Sample []infosPlayersSample `json:"sample"`
 }
 
+// Infos represents usual informations contained in ping response.
 type Infos struct {
 	Version     infosVersion `json:"version"`
 	Players     infosPlayers `json:"players"`
@@ -23,6 +27,7 @@ type Infos struct {
 	Favicon     string       `json:"favicon"`
 }
 
+// Infos extracts informations from ping response properties (JSON), and put it into an Infos structure.
 func (m *JSON) Infos() Infos {
 	var infos Infos
 
