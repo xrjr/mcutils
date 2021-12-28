@@ -45,7 +45,7 @@ This project has no dependency.
 ### Install
 
 ```shell
-go install github.com/xrjr/mcutils/cmd/mcutils
+go install github.com/xrjr/mcutils/cmd/mcutils@latest
 ```
 
 ### Usage
