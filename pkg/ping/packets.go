@@ -10,6 +10,8 @@ var (
 	ErrMalformedPacket error = errors.New("malformed packet")
 )
 
+type JSON map[string]interface{}
+
 // packet is the common structure conatained in all ping packets
 type packet struct {
 	Length   uint32
@@ -29,7 +31,7 @@ func (hsr *handshakeResponse) handshake() Handshake {
 }
 
 type Handshake struct {
-	Properties map[string]interface{} `json:"properties"`
+	Properties JSON `json:"properties"`
 }
 
 type pongResponse struct {
