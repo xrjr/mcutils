@@ -36,7 +36,7 @@ This project has no dependency.
 >
 > Rcon implementation supports fragmented response packets.
 >
-> Ping protocol changed in 1.7 in a non-backwards compatible way. Both modern and legacy SLP are supported.
+> Ping protocol changed in 1.7 in a non-backwards compatible way. Both modern and legacy SLP protocols are supported.
 
 
 
@@ -58,7 +58,7 @@ $ mcutils ping-legacy <hostname> <port>
 Example : mcutils ping localhost 25565
 
 $ mcutils ping-legacy-1.6.4 <hostname> <port>
-Same as ping-legacy, but sends 1.6 SLP informations into the request
+Same as ping-legacy, but uses 1.6+ SLP protocol
 Example : mcutils ping localhost 25565
 
 $ mcutils query <basic|full> <hostname> <port>
@@ -85,7 +85,7 @@ properties, latency, err := ping.PingLegacy("localhost", 25565)
 ```
 
 ```go
-// Ping returns the legacy server list ping infos (with 1.6+ SLP), and latency of a minecraft server.
+// Ping returns the legacy server list ping infos (using 1.6+ SLP protocol), and latency of a minecraft server.
 properties, latency, err := ping.PingLegacy1_6_4("localhost", 25565)
 ```
 
@@ -139,7 +139,7 @@ err := legacypingclient.Connect()
 // Ping requests for informations and latency of a server, using legacy SLP.
 infos, latency, err := legacypingclient.Ping()
 
-// Same as Ping, but uses 1.6+ SLP. Only one call to Ping or Ping1_6_4 should be done per opened connection.
+// Same as Ping, but uses 1.6+ SLP protocol. Only one call to Ping or Ping1_6_4 should be done per opened connection.
 infos, latency, err := legacypingclient.Ping1_6_4()
 
 // Disconnect closes the connection
