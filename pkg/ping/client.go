@@ -50,6 +50,9 @@ func parseHandshakeResponse(in networking.Input) (*handshakeResponse, error) {
 		return nil, err
 	}
 	hsRes.PacketID = uint32(packetID)
+	if hsRes.PacketID != HandshakePacketID {
+		return nil, ErrInvalidPacketType
+	}
 
 	rawJSONResponse, err := in.ReadString()
 	if err != nil {
@@ -93,6 +96,9 @@ func parsePongResponse(in networking.Input) (*pongResponse, error) {
 		return nil, err
 	}
 	pongRes.PacketID = uint32(packetID)
+	if pongRes.PacketID != PingPacketID {
+		return nil, ErrInvalidPacketType
+	}
 
 	payload, err := in.ReadBigEndianInt64()
 	if err != nil {

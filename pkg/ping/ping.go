@@ -4,7 +4,7 @@ package ping
 
 // Ping returns the server list ping infos (JSON-like object), and latency of a minecraft server.
 // If an error occured at any point of the process, an nil json response, a latency of -1, and a non nil error are returned.
-func Ping(hostname string, port int) (map[string]interface{}, int, error) {
+func Ping(hostname string, port int) (JSON, int, error) {
 	client := NewClient(hostname, port)
 
 	err := client.Connect()
