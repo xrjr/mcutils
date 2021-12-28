@@ -1,5 +1,5 @@
 // query package implements the mincraft query protocol.
-// This package is strictly compliant with the following documentation : https://wiki.vg/Query
+// This package is strictly compliant with the following documentation : https://wiki.vg/Query.
 package query
 
 // QueryBasic returns the basic stat of a minecraft server.

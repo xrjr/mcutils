@@ -21,7 +21,7 @@ var (
 	ProtocolNumber1_6_4           byte     = 78
 )
 
-// bigEndianUTF16ToString converts an array of byte containing an UTF-16BE encoded string into a string
+// bigEndianUTF16ToString converts an array of byte containing an UTF-16BE encoded string into a string.
 func bigEndianUTF16ToString(s []byte) string {
 	if len(s)%2 != 0 {
 		return ""
@@ -36,7 +36,7 @@ func bigEndianUTF16ToString(s []byte) string {
 	return string(utf16.Decode(u16s))
 }
 
-// stringToBigEndianUTF16 converts a string into an array of byte containing an UTF-16BE encoded string
+// stringToBigEndianUTF16 converts a string into an array of byte containing an UTF-16BE encoded string.
 func stringToBigEndianUTF16(s string) []byte {
 	u16s := utf16.Encode([]rune(s))
 

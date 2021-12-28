@@ -36,7 +36,7 @@ func generateHandshakeRequest(sessionID uint32) networking.Output {
 	return out
 }
 
-// parseHandshakeResponse reads and parses a response (of type handshake) into a handshakeResponse
+// parseHandshakeResponse reads and parses a response (of type handshake) into a handshakeResponse.
 func parseHandshakeResponse(in networking.Input) (*handshakeResponse, error) {
 	var hsRes *handshakeResponse = &handshakeResponse{}
 
@@ -80,7 +80,7 @@ func generateBasicStatRequest(sessionID, tokenID uint32) networking.Output {
 	return out
 }
 
-// parseBasicStatResponse reads and parses a response (of type basic stat) into a *basicStatResponse
+// parseBasicStatResponse reads and parses a response (of type basic stat) into a *basicStatResponse.
 func parseBasicStatResponse(in networking.Input) (*basicStatResponse, error) {
 	var bsRes *basicStatResponse = &basicStatResponse{}
 
@@ -166,7 +166,7 @@ func generateFullStatRequest(sessionID, tokenID uint32) networking.Output {
 	return out
 }
 
-// parseFullStatResponse reads and parses a response (of type full stat) into a *fullStatResponse
+// parseFullStatResponse reads and parses a response (of type full stat) into a *fullStatResponse.
 func parseFullStatResponse(in networking.Input) (*fullStatResponse, error) {
 	var fsRes *fullStatResponse = &fullStatResponse{}
 

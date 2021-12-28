@@ -35,7 +35,7 @@ func generateHandshakeRequest(hostname string, port uint16) networking.Output {
 	return out
 }
 
-// parseHandshakeResponse reads and parses a response (of type handshake) into a handshakeResponse
+// parseHandshakeResponse reads and parses a response (of type handshake) into a handshakeResponse.
 func parseHandshakeResponse(in networking.Input) (*handshakeResponse, error) {
 	var hsRes handshakeResponse
 
@@ -81,7 +81,7 @@ func generatePingRequest() networking.Output {
 	return out
 }
 
-// parsePongResponse reads and parses a response (of type pong) into a *pongResponse
+// parsePongResponse reads and parses a response (of type pong) into a *pongResponse.
 func parsePongResponse(in networking.Input) (*pongResponse, error) {
 	var pongRes pongResponse
 
