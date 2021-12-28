@@ -9,34 +9,34 @@ import (
 	"github.com/xrjr/mcutils/pkg/ping"
 )
 
-type PingCommand struct{}
+type PingLegacyCommand struct{}
 
-func (PingCommand) MinNumberOfArguments() int {
+func (PingLegacyCommand) MinNumberOfArguments() int {
 	return 2
 }
 
-func (PingCommand) MaxNumberOfArguments() int {
+func (PingLegacyCommand) MaxNumberOfArguments() int {
 	return 2
 }
 
-func (PingCommand) Usage() string {
+func (PingLegacyCommand) Usage() string {
 	return "<hostname> <port>"
 }
 
-func (PingCommand) Execute(params []string) bool {
+func (PingLegacyCommand) Execute(params []string) bool {
 	port, err := strconv.Atoi(params[1])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Invalid port.")
 		return false
 	}
 
-	properties, latency, err := ping.Ping(params[0], port)
+	infos, latency, err := ping.PingLegacy(params[0], port)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error : %s.\n", err.Error())
 		return false
 	}
 
-	jsonProperties, err := json.MarshalIndent(properties, "", "\t")
+	jsonProperties, err := json.MarshalIndent(infos, "", "\t")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error : %s.\n", err.Error())
 		return false
