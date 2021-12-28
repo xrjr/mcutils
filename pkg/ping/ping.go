@@ -54,7 +54,7 @@ func PingLegacy(hostname string, port int) (LegacyPingInfos, int, error) {
 	return infos, latency, nil
 }
 
-// PingLegacy1_6_4 returns the legacy server list ping infos (with 1.6+ SLP), and latency of a minecraft server.
+// PingLegacy1_6_4 returns the legacy server list ping infos (using 1.6+ SLP protocol), and latency of a minecraft server.
 // If an error occured at any point of the process, an empty response, a latency of -1, and a non nil error are returned.
 // If the minecraft server has a version <= 1.3, ProtocolNumber and MinecraftVersion are not set.
 func PingLegacy1_6_4(hostname string, port int) (LegacyPingInfos, int, error) {

@@ -209,7 +209,7 @@ func (client *PingClientLegacy) Ping() (LegacyPingInfos, int, error) {
 	return client.ping(false)
 }
 
-// Ping1_6_4 sends a legacy ping request to the server with 1.6 SLP protocol informations, and returns various informations about the server, and the latency in ms.
+// Ping1_6_4 sends a legacy ping request to the server (using 1.6+ SLP protocol), and returns various informations about the server, and the latency in ms.
 // If the minecraft server has a version <= 1.3, ProtocolNumber and MinecraftVersion are not set.
 func (client *PingClientLegacy) Ping1_6_4() (LegacyPingInfos, int, error) {
 	return client.ping(true)
