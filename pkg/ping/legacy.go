@@ -167,29 +167,29 @@ func parseLegacyPingResponse(in networking.Input) (*legacyPingResponse, error) {
 	return &lpRes, nil
 }
 
-// LegacyPingClient is the legacy ping client.
-type LegacyPingClient struct {
+// PingClientLegacy is the legacy ping client.
+type PingClientLegacy struct {
 	hostname    string
 	port        int
 	dialOptions networking.DialTCPOptions
 	conn        *networking.TCPConn
 }
 
-// NewLegacyClient returns a well-formed *LegacyPingClient.
-func NewLegacyClient(hostname string, port int) *LegacyPingClient {
-	return &LegacyPingClient{
+// NewClientLegacy returns a well-formed *LegacyPingClient.
+func NewClientLegacy(hostname string, port int) *PingClientLegacy {
+	return &PingClientLegacy{
 		hostname: hostname,
 		port:     port,
 	}
 }
 
 // SetDialOptions sets the options used in the dial process of the connection.
-func (client *LegacyPingClient) SetDialOptions(dialOptions networking.DialTCPOptions) {
+func (client *PingClientLegacy) SetDialOptions(dialOptions networking.DialTCPOptions) {
 	client.dialOptions = dialOptions
 }
 
 // Connect establishes a connection via TCP.
-func (client *LegacyPingClient) Connect() error {
+func (client *PingClientLegacy) Connect() error {
 	if client.conn != nil {
 		return networking.ErrConnectionAlreadyEstablished
 	}
@@ -204,9 +204,9 @@ func (client *LegacyPingClient) Connect() error {
 }
 
 // Ping sends a legacy ping request to the server, and returns various informations about the server, and the latency in ms.
-func (client *LegacyPingClient) Ping() (LegacyPing, int, error) {
+func (client *PingClientLegacy) Ping() (LegacyPingInfos, int, error) {
 	if client.conn == nil {
-		return LegacyPing{}, -1, networking.ErrConnectionNotEstablished
+		return LegacyPingInfos{}, -1, networking.ErrConnectionNotEstablished
 	}
 
 	pingRequest := generateLegacyPingRequest(client.hostname, uint16(client.port), false)
@@ -214,22 +214,22 @@ func (client *LegacyPingClient) Ping() (LegacyPing, int, error) {
 	start := time.Now().UnixMilli()
 	pingResponse, err := client.conn.Send(pingRequest)
 	if err != nil {
-		return LegacyPing{}, -1, err
+		return LegacyPingInfos{}, -1, err
 	}
 
 	lpr, err := parseLegacyPingResponse(pingResponse)
 	if err != nil {
-		return LegacyPing{}, -1, err
+		return LegacyPingInfos{}, -1, err
 	}
 	latency := time.Now().UnixMilli() - start
 
-	return lpr.legacyPing(), int(latency), nil
+	return lpr.legacyPingInfos(), int(latency), nil
 }
 
 // Ping1_6_4 sends a legacy ping request to the server with 1.6 SLP protocol informations, and returns various informations about the server, and the latency in ms.
-func (client *LegacyPingClient) Ping1_6_4() (LegacyPing, int, error) {
+func (client *PingClientLegacy) Ping1_6_4() (LegacyPingInfos, int, error) {
 	if client.conn == nil {
-		return LegacyPing{}, -1, networking.ErrConnectionNotEstablished
+		return LegacyPingInfos{}, -1, networking.ErrConnectionNotEstablished
 	}
 
 	pingRequest := generateLegacyPingRequest(client.hostname, uint16(client.port), true)
@@ -237,21 +237,21 @@ func (client *LegacyPingClient) Ping1_6_4() (LegacyPing, int, error) {
 	start := time.Now().UnixMilli()
 	pingResponse, err := client.conn.Send(pingRequest)
 	if err != nil {
-		return LegacyPing{}, -1, err
+		return LegacyPingInfos{}, -1, err
 	}
 
 	lpr, err := parseLegacyPingResponse(pingResponse)
 	if err != nil {
-		return LegacyPing{}, -1, err
+		return LegacyPingInfos{}, -1, err
 	}
 	latency := time.Now().UnixMilli() - start
 
-	return lpr.legacyPing(), int(latency), nil
+	return lpr.legacyPingInfos(), int(latency), nil
 }
 
 // Disconnect closes the connection.
 // Connection is made not usable anymore no matter if the it closed properly or not.
-func (client *LegacyPingClient) Disconnect() error {
+func (client *PingClientLegacy) Disconnect() error {
 	err := client.conn.Close()
 	client.conn = nil
 	return err

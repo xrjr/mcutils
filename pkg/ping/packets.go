@@ -64,8 +64,8 @@ type legacyPingResponse struct {
 	MaxPlayers           int
 }
 
-func (lpr *legacyPingResponse) legacyPing() LegacyPing {
-	return LegacyPing{
+func (lpr *legacyPingResponse) legacyPingInfos() LegacyPingInfos {
+	return LegacyPingInfos{
 		ProtocolVersion:  lpr.ProtocolVersion,
 		MinecraftVersion: lpr.MinecraftVersion,
 		MOTD:             lpr.MOTD,
@@ -74,7 +74,7 @@ func (lpr *legacyPingResponse) legacyPing() LegacyPing {
 	}
 }
 
-type LegacyPing struct {
+type LegacyPingInfos struct {
 	ProtocolVersion  int    `json:"protocolVersion"`
 	MinecraftVersion string `json:"minecraftVersion"`
 	MOTD             string `json:"motd"`
