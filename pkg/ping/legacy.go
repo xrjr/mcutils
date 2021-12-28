@@ -204,35 +204,24 @@ func (client *PingClientLegacy) Connect() error {
 }
 
 // Ping sends a legacy ping request to the server, and returns various informations about the server, and the latency in ms.
+// If the minecraft server has a version <= 1.3, ProtocolNumber and MinecraftVersion are not set.
 func (client *PingClientLegacy) Ping() (LegacyPingInfos, int, error) {
-	if client.conn == nil {
-		return LegacyPingInfos{}, -1, networking.ErrConnectionNotEstablished
-	}
-
-	pingRequest := generateLegacyPingRequest(client.hostname, uint16(client.port), false)
-
-	start := time.Now().UnixMilli()
-	pingResponse, err := client.conn.Send(pingRequest)
-	if err != nil {
-		return LegacyPingInfos{}, -1, err
-	}
-
-	lpr, err := parseLegacyPingResponse(pingResponse)
-	if err != nil {
-		return LegacyPingInfos{}, -1, err
-	}
-	latency := time.Now().UnixMilli() - start
-
-	return lpr.legacyPingInfos(), int(latency), nil
+	return client.ping(false)
 }
 
 // Ping1_6_4 sends a legacy ping request to the server with 1.6 SLP protocol informations, and returns various informations about the server, and the latency in ms.
+// If the minecraft server has a version <= 1.3, ProtocolNumber and MinecraftVersion are not set.
 func (client *PingClientLegacy) Ping1_6_4() (LegacyPingInfos, int, error) {
+	return client.ping(true)
+}
+
+// ping sends a legacy ping request to the server, and returns various informations about the server, and the latency in ms.
+func (client *PingClientLegacy) ping(use1_6_4protocol bool) (LegacyPingInfos, int, error) {
 	if client.conn == nil {
 		return LegacyPingInfos{}, -1, networking.ErrConnectionNotEstablished
 	}
 
-	pingRequest := generateLegacyPingRequest(client.hostname, uint16(client.port), true)
+	pingRequest := generateLegacyPingRequest(client.hostname, uint16(client.port), use1_6_4protocol)
 
 	start := time.Now().UnixMilli()
 	pingResponse, err := client.conn.Send(pingRequest)
