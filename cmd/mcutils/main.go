@@ -14,9 +14,11 @@ type Command interface {
 
 var (
 	commands map[string]Command = map[string]Command{
-		"ping":  PingCommand{},
-		"query": QueryCommand{},
-		"rcon":  RconCommand{},
+		"ping":              PingCommand{},
+		"query":             QueryCommand{},
+		"rcon":              RconCommand{},
+		"ping-legacy":       PingLegacyCommand{},
+		"ping-legacy-1.6.4": PingLegacy1_6_4Command{},
 	}
 )
 
