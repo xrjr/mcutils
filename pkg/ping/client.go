@@ -2,6 +2,7 @@ package ping
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/xrjr/mcutils/pkg/networking"
@@ -11,6 +12,10 @@ const (
 	UnknownProtocolVersion int32  = -1
 	HandshakePacketID      uint32 = 0
 	PingPacketID           uint32 = 1
+)
+
+var (
+	ErrInvalidPacketType error = errors.New("invalid packet type")
 )
 
 // generateHandshakeRequest generates a networking.Output corresponding to a handshake request.
