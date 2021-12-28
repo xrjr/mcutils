@@ -24,7 +24,7 @@ This project has no dependency.
 
 ### Supported protocols
 
-- [Ping](https://wiki.vg/Server_List_Ping) (Server List Ping)
+- [Ping](https://wiki.vg/Server_List_Ping) (Server List Ping, 1.7+)
 
 - [Query](https://wiki.vg/Query)
 
@@ -35,6 +35,8 @@ This project has no dependency.
 > All protocols implementations support SRV record resolving. 
 >
 > Rcon implementation supports fragmented response packets.
+>
+> Ping protocol changed in 1.7 in a non-backwards compatible way. Only 1.7+ ping protocol is supported at the moment.
 
 
 
@@ -43,7 +45,7 @@ This project has no dependency.
 ### Install
 
 ```shell
-go install github.com/xrjr/mcutils/cmd/mcutils
+go install github.com/xrjr/mcutils/cmd/mcutils@latest
 ```
 
 ### Usage
