@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"time"
 
 	"github.com/xrjr/mcutils/pkg/networking"
 )
@@ -157,22 +158,26 @@ func parseFragmentedPacketPayload(conn networking.TCPConn, in networking.Input) 
 type RCONClient struct {
 	hostname      string
 	port          int
-	dialOptions   networking.DialTCPOptions
 	conn          *networking.TCPConn
 	authenticated bool
+
+	// options
+	SkipSRVLookup bool
+	DialTimeout   time.Duration
+	ReadTimeout   time.Duration
 }
 
 // NewClient returns a well-formed *RCONClient.
 func NewClient(hostname string, port int) *RCONClient {
 	return &RCONClient{
-		hostname: hostname,
-		port:     port,
-	}
-}
+		hostname:      hostname,
+		port:          port,
+		authenticated: false,
 
-// SetDialOptions sets the options used in the dial process of the connection.
-func (client *RCONClient) SetDialOptions(dialOptions networking.DialTCPOptions) {
-	client.dialOptions = dialOptions
+		SkipSRVLookup: false,
+		DialTimeout:   5 * time.Second,
+		ReadTimeout:   5 * time.Second,
+	}
 }
 
 // Connect establishes a connection via TCP.
@@ -181,7 +186,10 @@ func (client *RCONClient) Connect() error {
 		return networking.ErrConnectionAlreadyEstablished
 	}
 
-	conn, err := networking.DialTCP(client.hostname, client.port, client.dialOptions)
+	conn, err := networking.DialTCP(client.hostname, client.port, networking.DialTCPOptions{
+		SkipSRVLookup: client.SkipSRVLookup,
+		DialTimeout:   client.DialTimeout,
+	})
 	if err != nil {
 		return err
 	}
@@ -205,6 +213,11 @@ func (client *RCONClient) Authenticate(password string) (bool, error) {
 	loginRequestPacket := transformToPacket(loginRequest)
 
 	loginResponse, err := client.conn.Send(loginRequestPacket)
+	if err != nil {
+		return false, err
+	}
+
+	err = client.conn.SetReadDeadline(client.ReadTimeout)
 	if err != nil {
 		return false, err
 	}
@@ -242,6 +255,11 @@ func (client *RCONClient) Command(command string) (string, error) {
 	commandRequestPacket := transformToPacket(commandRequest)
 
 	commandResponse, err := client.conn.Send(commandRequestPacket)
+	if err != nil {
+		return "", err
+	}
+
+	err = client.conn.SetReadDeadline(client.ReadTimeout)
 	if err != nil {
 		return "", err
 	}
