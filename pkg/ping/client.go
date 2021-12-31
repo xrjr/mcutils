@@ -117,8 +117,8 @@ type PingClient struct {
 
 	// options
 	SkipSRVLookup bool
-	DialTimeout   time.Duration // in ms
-	ReadTimeout   time.Duration // in ms
+	DialTimeout   time.Duration
+	ReadTimeout   time.Duration
 }
 
 // NewClient returns a well-formed *PingClient.
@@ -166,7 +166,11 @@ func (client *PingClient) Handshake() (Handshake, error) {
 		return Handshake{}, err
 	}
 
-	client.conn.SetReadDeadline(client.ReadTimeout)
+	err = client.conn.SetReadDeadline(client.ReadTimeout)
+	if err != nil {
+		return Handshake{}, err
+	}
+
 	hs, err := parseHandshakeResponse(hsResponse)
 	if err != nil {
 		return Handshake{}, err
@@ -190,7 +194,11 @@ func (client *PingClient) Ping() (int, error) {
 		return -1, err
 	}
 
-	client.conn.SetReadDeadline(client.ReadTimeout)
+	err = client.conn.SetReadDeadline(client.ReadTimeout)
+	if err != nil {
+		return -1, err
+	}
+
 	pong, err := parsePongResponse(pingResponse)
 	if err != nil {
 		return -1, err

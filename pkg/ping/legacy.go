@@ -235,7 +235,11 @@ func (client *PingClientLegacy) ping(use1_6_4protocol bool) (LegacyPingInfos, in
 		return LegacyPingInfos{}, -1, err
 	}
 
-	client.conn.SetReadDeadline(client.ReadTimeout)
+	err = client.conn.SetReadDeadline(client.ReadTimeout)
+	if err != nil {
+		return LegacyPingInfos{}, -1, err
+	}
+
 	lpr, err := parseLegacyPingResponse(pingResponse)
 	if err != nil {
 		return LegacyPingInfos{}, -1, err
