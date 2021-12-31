@@ -241,6 +241,10 @@ func (client *PingClientLegacy) ping(use1_6_4protocol bool) (LegacyPingInfos, in
 // Disconnect closes the connection.
 // Connection is made not usable anymore no matter if the it closed properly or not.
 func (client *PingClientLegacy) Disconnect() error {
+	if client.conn == nil {
+		return networking.ErrConnectionNotEstablished
+	}
+
 	err := client.conn.Close()
 	client.conn = nil
 	return err
