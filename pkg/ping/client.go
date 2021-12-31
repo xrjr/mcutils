@@ -194,6 +194,10 @@ func (client *PingClient) Ping() (int, error) {
 // Disconnect closes the connection.
 // Connection is made not usable anymore no matter if the it closed properly or not.
 func (client *PingClient) Disconnect() error {
+	if client.conn == nil {
+		return networking.ErrConnectionNotEstablished
+	}
+
 	err := client.conn.Close()
 	client.conn = nil
 	return err
