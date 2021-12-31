@@ -3,6 +3,7 @@ package query
 import (
 	"math/rand"
 	"strconv"
+	"time"
 
 	"github.com/xrjr/mcutils/pkg/networking"
 )
@@ -233,11 +234,16 @@ func parseFullStatResponse(in networking.Input) (*fullStatResponse, error) {
 // QueryClient is the query client.
 // challengeToken isn't stored in the client as it can change in the lifetime of a client, while session ID doesn't.
 type QueryClient struct {
-	hostname    string
-	port        int
-	dialOptions networking.DialUDPOptions
-	conn        *networking.UDPConn
-	sessionID   uint32
+	hostname  string
+	port      int
+	conn      *networking.UDPConn
+	sessionID uint32
+
+	// options
+	SkipSRVLookup                bool
+	ForceUDPProtocolForSRVLookup bool
+	DialTimeout                  time.Duration
+	ReadTimeout                  time.Duration
 }
 
 // NewClient returns a well-formed *QueryClient.
@@ -245,12 +251,12 @@ func NewClient(hostname string, port int) *QueryClient {
 	return &QueryClient{
 		hostname: hostname,
 		port:     port,
-	}
-}
 
-// SetDialOptions sets the options used in the dial process of the connection.
-func (client *QueryClient) SetDialOptions(dialOptions networking.DialUDPOptions) {
-	client.dialOptions = dialOptions
+		SkipSRVLookup:                false,
+		ForceUDPProtocolForSRVLookup: false,
+		DialTimeout:                  5 * time.Second,
+		ReadTimeout:                  5 * time.Second,
+	}
 }
 
 // Connect establishes a connection via UDP.
@@ -259,7 +265,11 @@ func (client *QueryClient) Connect() error {
 		return networking.ErrConnectionAlreadyEstablished
 	}
 
-	conn, err := networking.DialUDP(client.hostname, client.port, client.dialOptions)
+	conn, err := networking.DialUDP(client.hostname, client.port, networking.DialUDPOptions{
+		SkipSRVLookup:                client.SkipSRVLookup,
+		ForceUDPProtocolForSRVLookup: client.ForceUDPProtocolForSRVLookup,
+		DialTimeout:                  client.DialTimeout,
+	})
 	if err != nil {
 		return err
 	}
@@ -276,6 +286,12 @@ func (client *QueryClient) Handshake() (uint32, error) {
 	}
 
 	hsRequest := generateHandshakeRequest(client.sessionID)
+
+	// UDPConn reads are made in send method
+	err := client.conn.SetReadDeadline(client.ReadTimeout)
+	if err != nil {
+		return 0, err
+	}
 
 	hsResponse, err := client.conn.Send(hsRequest)
 	if err != nil {
@@ -298,6 +314,12 @@ func (client *QueryClient) BasicStat(challengeToken uint32) (BasicStat, error) {
 
 	bsRequest := generateBasicStatRequest(client.sessionID, challengeToken)
 
+	// UDPConn reads are made in send method
+	err := client.conn.SetReadDeadline(client.ReadTimeout)
+	if err != nil {
+		return BasicStat{}, err
+	}
+
 	bsResponse, err := client.conn.Send(bsRequest)
 	if err != nil {
 		return BasicStat{}, err
@@ -318,6 +340,12 @@ func (client *QueryClient) FullStat(challengeToken uint32) (FullStat, error) {
 	}
 
 	fsRequest := generateFullStatRequest(client.sessionID, challengeToken)
+
+	// UDPConn reads are made in send method
+	err := client.conn.SetReadDeadline(client.ReadTimeout)
+	if err != nil {
+		return FullStat{}, err
+	}
 
 	fsResponse, err := client.conn.Send(fsRequest)
 	if err != nil {

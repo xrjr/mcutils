@@ -169,10 +169,14 @@ func parseLegacyPingResponse(in networking.Input) (*legacyPingResponse, error) {
 
 // PingClientLegacy is the legacy ping client.
 type PingClientLegacy struct {
-	hostname    string
-	port        int
-	dialOptions networking.DialTCPOptions
-	conn        *networking.TCPConn
+	hostname string
+	port     int
+	conn     *networking.TCPConn
+
+	// options
+	SkipSRVLookup bool
+	DialTimeout   time.Duration
+	ReadTimeout   time.Duration
 }
 
 // NewClientLegacy returns a well-formed *LegacyPingClient.
@@ -180,12 +184,11 @@ func NewClientLegacy(hostname string, port int) *PingClientLegacy {
 	return &PingClientLegacy{
 		hostname: hostname,
 		port:     port,
-	}
-}
 
-// SetDialOptions sets the options used in the dial process of the connection.
-func (client *PingClientLegacy) SetDialOptions(dialOptions networking.DialTCPOptions) {
-	client.dialOptions = dialOptions
+		SkipSRVLookup: false,
+		DialTimeout:   5 * time.Second,
+		ReadTimeout:   5 * time.Second,
+	}
 }
 
 // Connect establishes a connection via TCP.
@@ -194,7 +197,10 @@ func (client *PingClientLegacy) Connect() error {
 		return networking.ErrConnectionAlreadyEstablished
 	}
 
-	conn, err := networking.DialTCP(client.hostname, client.port, client.dialOptions)
+	conn, err := networking.DialTCP(client.hostname, client.port, networking.DialTCPOptions{
+		SkipSRVLookup: client.SkipSRVLookup,
+		DialTimeout:   client.DialTimeout,
+	})
 	if err != nil {
 		return err
 	}
@@ -225,6 +231,11 @@ func (client *PingClientLegacy) ping(use1_6_4protocol bool) (LegacyPingInfos, in
 
 	start := time.Now().UnixMilli()
 	pingResponse, err := client.conn.Send(pingRequest)
+	if err != nil {
+		return LegacyPingInfos{}, -1, err
+	}
+
+	err = client.conn.SetReadDeadline(client.ReadTimeout)
 	if err != nil {
 		return LegacyPingInfos{}, -1, err
 	}

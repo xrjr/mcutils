@@ -111,10 +111,14 @@ func parsePongResponse(in networking.Input) (*pongResponse, error) {
 
 // PingClient is the ping client.
 type PingClient struct {
-	hostname    string
-	port        int
-	dialOptions networking.DialTCPOptions
-	conn        *networking.TCPConn
+	hostname string
+	port     int
+	conn     *networking.TCPConn
+
+	// options
+	SkipSRVLookup bool
+	DialTimeout   time.Duration
+	ReadTimeout   time.Duration
 }
 
 // NewClient returns a well-formed *PingClient.
@@ -122,12 +126,11 @@ func NewClient(hostname string, port int) *PingClient {
 	return &PingClient{
 		hostname: hostname,
 		port:     port,
-	}
-}
 
-// SetDialOptions sets the options used in the dial process of the connection.
-func (client *PingClient) SetDialOptions(dialOptions networking.DialTCPOptions) {
-	client.dialOptions = dialOptions
+		SkipSRVLookup: false,
+		DialTimeout:   5 * time.Second,
+		ReadTimeout:   5 * time.Second,
+	}
 }
 
 // Connect establishes a connection via TCP.
@@ -136,7 +139,10 @@ func (client *PingClient) Connect() error {
 		return networking.ErrConnectionAlreadyEstablished
 	}
 
-	conn, err := networking.DialTCP(client.hostname, client.port, client.dialOptions)
+	conn, err := networking.DialTCP(client.hostname, client.port, networking.DialTCPOptions{
+		SkipSRVLookup: client.SkipSRVLookup,
+		DialTimeout:   client.DialTimeout,
+	})
 	if err != nil {
 		return err
 	}
@@ -160,6 +166,11 @@ func (client *PingClient) Handshake() (Handshake, error) {
 		return Handshake{}, err
 	}
 
+	err = client.conn.SetReadDeadline(client.ReadTimeout)
+	if err != nil {
+		return Handshake{}, err
+	}
+
 	hs, err := parseHandshakeResponse(hsResponse)
 	if err != nil {
 		return Handshake{}, err
@@ -179,6 +190,11 @@ func (client *PingClient) Ping() (int, error) {
 	pingRequestPacket := transformToPacket(pingRequest)
 
 	pingResponse, err := client.conn.Send(pingRequestPacket)
+	if err != nil {
+		return -1, err
+	}
+
+	err = client.conn.SetReadDeadline(client.ReadTimeout)
 	if err != nil {
 		return -1, err
 	}

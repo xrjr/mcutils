@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"time"
 )
 
 const (
@@ -18,13 +19,13 @@ var (
 	ErrConnectionAlreadyEstablished error = errors.New("connection has already been established. If you want to reopen a connection for this client, you have to call Disconnect first")
 )
 
-// Conn is common interface between TCP and UDP connections
+// Conn is common interface between TCP and UDP connections.
 type Conn interface {
 	ExecuteRequest(Output) (Input, error)
 	Close() error
 }
 
-// TCPConn is a tcp connection
+// TCPConn is a tcp connection.
 type TCPConn struct {
 	conn *net.TCPConn
 }
@@ -33,9 +34,10 @@ type TCPConn struct {
 // An empty struct (all fields set to false) is considered as the default behavior for the DialTCP function.
 type DialTCPOptions struct {
 	SkipSRVLookup bool
+	DialTimeout   time.Duration
 }
 
-// DialTCP resolve TCP address and connects to the address using TCP
+// DialTCP resolve TCP address and connects to the address using TCP.
 func DialTCP(hostname string, port int, options DialTCPOptions) (*TCPConn, error) {
 	var _hostname string = hostname
 	var _port int = port
@@ -48,18 +50,13 @@ func DialTCP(hostname string, port int, options DialTCPOptions) (*TCPConn, error
 		}
 	}
 
-	tcpaddr, err := net.ResolveTCPAddr("tcp4", fmt.Sprintf("%s:%d", _hostname, _port))
-	if err != nil {
-		return nil, err
-	}
-
-	c, err := net.DialTCP("tcp4", nil, tcpaddr)
+	c, err := net.DialTimeout("tcp4", fmt.Sprintf("%s:%d", _hostname, _port), options.DialTimeout)
 	if err != nil {
 		return nil, err
 	}
 
 	return &TCPConn{
-		conn: c,
+		conn: c.(*net.TCPConn),
 	}, nil
 }
 
@@ -77,7 +74,15 @@ func (tcpc TCPConn) Send(req Output) (Input, error) {
 	return NewInput(tcpc.conn), nil
 }
 
-// Close closes the connection
+// SetReadDeadline sets the read deadline of the underlying connection.
+func (tcpc TCPConn) SetReadDeadline(d time.Duration) error {
+	if tcpc.conn == nil {
+		return ErrConnectionNotEstablished
+	}
+	return tcpc.conn.SetReadDeadline(time.Now().Add(d))
+}
+
+// Close closes the connection.
 func (tcpc TCPConn) Close() error {
 	if tcpc.conn == nil {
 		return ErrConnectionNotEstablished
@@ -85,7 +90,7 @@ func (tcpc TCPConn) Close() error {
 	return tcpc.conn.Close()
 }
 
-// UDPConn is a udp connection
+// UDPConn is a udp connection.
 type UDPConn struct {
 	conn *net.UDPConn
 }
@@ -95,9 +100,10 @@ type UDPConn struct {
 type DialUDPOptions struct {
 	SkipSRVLookup                bool
 	ForceUDPProtocolForSRVLookup bool
+	DialTimeout                  time.Duration
 }
 
-// DialTCP resolve UDP address and connects to the address using UDP
+// DialTCP resolve UDP address and connects to the address using UDP.
 func DialUDP(hostname string, port int, options DialUDPOptions) (*UDPConn, error) {
 	var _hostname string = hostname
 	var _port int = port
@@ -115,18 +121,13 @@ func DialUDP(hostname string, port int, options DialUDPOptions) (*UDPConn, error
 		}
 	}
 
-	udpraddr, err := net.ResolveUDPAddr("udp4", fmt.Sprintf("%s:%d", _hostname, _port))
-	if err != nil {
-		return nil, err
-	}
-
-	c, err := net.DialUDP("udp4", nil, udpraddr)
+	c, err := net.DialTimeout("udp4", fmt.Sprintf("%s:%d", _hostname, _port), options.DialTimeout)
 	if err != nil {
 		return nil, err
 	}
 
 	return &UDPConn{
-		conn: c,
+		conn: c.(*net.UDPConn),
 	}, nil
 }
 
@@ -151,7 +152,15 @@ func (udpc UDPConn) Send(out Output) (Input, error) {
 	return NewInput(bytes.NewBuffer(buf[:n])), nil
 }
 
-// Close closes the connection
+// SetReadDeadline sets the read deadline of the underlying connection.
+func (udpc UDPConn) SetReadDeadline(d time.Duration) error {
+	if udpc.conn == nil {
+		return ErrConnectionNotEstablished
+	}
+	return udpc.conn.SetReadDeadline(time.Now().Add(d))
+}
+
+// Close closes the connection.
 func (udpc UDPConn) Close() error {
 	if udpc.conn == nil {
 		return ErrConnectionNotEstablished
