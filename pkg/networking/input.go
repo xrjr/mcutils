@@ -108,12 +108,22 @@ func (in *Input) ReadLittleEndianInt64() (uint64, error) {
 
 // ReadUVarInt64 tries to read an unsigned varint from the input.
 func (in *Input) ReadUVarInt() (uint64, error) {
-	return binary.ReadUvarint(in)
+	uvarint, err := binary.ReadUvarint(in)
+	if err != nil {
+		return 0, err
+	}
+
+	return uvarint, nil
 }
 
 // ReadVarInt64 tries to read a signed varint from the input.
 func (in *Input) ReadVarInt() (int64, error) {
-	return binary.ReadVarint(in)
+	varint, err := binary.ReadVarint(in)
+	if err != nil {
+		return 0, err
+	}
+
+	return varint, nil
 }
 
 // ReadNullTerminatedString tries to read a null terminated string from the input.
