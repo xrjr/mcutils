@@ -33,15 +33,17 @@ func (in *Input) ReadByte() (byte, error) {
 
 // ReadBytes tries to read a slice of byte of size n from the input.
 func (in *Input) ReadBytes(n int) ([]byte, error) {
-	var final *bytes.Buffer = &bytes.Buffer{}
-	for i := 0; i < n; i++ {
-		b, err := in.ReadByte()
+	var buf []byte = make([]byte, n)
+	totalBytesRead := 0
+
+	for totalBytesRead < n {
+		bytesRead, err := in.r.Read(buf[totalBytesRead:])
 		if err != nil {
 			return nil, err
 		}
-		final.WriteByte(b)
+		totalBytesRead += bytesRead
 	}
-	return final.Bytes(), nil
+	return buf, nil
 }
 
 // ReadBigEndianInt16 tries to read a big endian 2-bytes int (short) from the input.
