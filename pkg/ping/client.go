@@ -1,6 +1,7 @@
 package ping
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"time"
@@ -45,7 +46,13 @@ func parseHandshakeResponse(in networking.Input) (*handshakeResponse, error) {
 	}
 	hsRes.Length = uint32(length)
 
-	packetID, err := in.ReadUVarInt()
+	content, err := in.ReadBytes(int(length))
+	if err != nil {
+		return nil, err
+	}
+	_in := networking.NewInput(bytes.NewReader(content))
+
+	packetID, err := _in.ReadUVarInt()
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +61,7 @@ func parseHandshakeResponse(in networking.Input) (*handshakeResponse, error) {
 		return nil, ErrInvalidPacketType
 	}
 
-	rawJSONResponse, err := in.ReadString()
+	rawJSONResponse, err := _in.ReadString()
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +98,13 @@ func parsePongResponse(in networking.Input) (*pongResponse, error) {
 	}
 	pongRes.Length = uint32(length)
 
-	packetID, err := in.ReadUVarInt()
+	content, err := in.ReadBytes(int(length))
+	if err != nil {
+		return nil, err
+	}
+	_in := networking.NewInput(bytes.NewReader(content))
+
+	packetID, err := _in.ReadUVarInt()
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +113,7 @@ func parsePongResponse(in networking.Input) (*pongResponse, error) {
 		return nil, ErrInvalidPacketType
 	}
 
-	payload, err := in.ReadBigEndianInt64()
+	payload, err := _in.ReadBigEndianInt64()
 	if err != nil {
 		return nil, err
 	}

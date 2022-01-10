@@ -88,25 +88,31 @@ func parsePacket(in networking.Input) (*packet, error) {
 	}
 	p.Length = length
 
-	requestID, err := in.ReadLittleEndianInt32()
+	content, err := in.ReadBytes(int(length))
+	if err != nil {
+		return nil, err
+	}
+	_in := networking.NewInput(bytes.NewReader(content))
+
+	requestID, err := _in.ReadLittleEndianInt32()
 	if err != nil {
 		return nil, err
 	}
 	p.RequestID = int32(requestID)
 
-	type_, err := in.ReadLittleEndianInt32()
+	type_, err := _in.ReadLittleEndianInt32()
 	if err != nil {
 		return nil, err
 	}
 	p.Type = type_
 
-	payload, err := in.ReadNullTerminatedString()
+	payload, err := _in.ReadNullTerminatedString()
 	if err != nil {
 		return nil, err
 	}
 	p.Payload = payload
 
-	padding, err := in.ReadByte()
+	padding, err := _in.ReadByte()
 	if err != nil {
 		return nil, err
 	}

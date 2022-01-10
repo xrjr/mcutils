@@ -49,55 +49,71 @@ func (in *Input) ReadBytes(n int) ([]byte, error) {
 // ReadBigEndianInt16 tries to read a big endian 2-bytes int (short) from the input.
 func (in *Input) ReadBigEndianInt16() (uint16, error) {
 	buf, err := in.ReadBytes(2)
-	return binary.BigEndian.Uint16(buf[0:2]), err
+	if err != nil {
+		return 0, err
+	}
+
+	return binary.BigEndian.Uint16(buf[0:2]), nil
 }
 
 // ReadLittleEndianInt16 tries to read a little endian 2-bytes int (short) from the input.
 func (in *Input) ReadLittleEndianInt16() (uint16, error) {
 	buf, err := in.ReadBytes(2)
-	return binary.LittleEndian.Uint16(buf[0:2]), err
+	if err != nil {
+		return 0, err
+	}
+
+	return binary.LittleEndian.Uint16(buf[0:2]), nil
 }
 
 // ReadBigEndianInt32 tries to read a big endian 4-bytes int from the input.
 func (in *Input) ReadBigEndianInt32() (uint32, error) {
 	buf, err := in.ReadBytes(4)
-	return binary.BigEndian.Uint32(buf[0:4]), err
+	if err != nil {
+		return 0, err
+	}
+
+	return binary.BigEndian.Uint32(buf[0:4]), nil
 }
 
 // ReadLittleEndianInt32 tries to read a little endian 4-bytes int from the input.
 func (in *Input) ReadLittleEndianInt32() (uint32, error) {
 	buf, err := in.ReadBytes(4)
-	return binary.LittleEndian.Uint32(buf[0:4]), err
+	if err != nil {
+		return 0, err
+	}
+
+	return binary.LittleEndian.Uint32(buf[0:4]), nil
 }
 
 // ReadBigEndianInt64 tries to read a big endian 8-bytes int (long) from the input.
 func (in *Input) ReadBigEndianInt64() (uint64, error) {
 	buf, err := in.ReadBytes(8)
-	return binary.BigEndian.Uint64(buf[0:8]), err
+	if err != nil {
+		return 0, err
+	}
+
+	return binary.BigEndian.Uint64(buf[0:8]), nil
 }
 
 // ReadLittleEndianInt64 tries to read a little endian 8-bytes int (long) from the input.
 func (in *Input) ReadLittleEndianInt64() (uint64, error) {
 	buf, err := in.ReadBytes(8)
-	return binary.LittleEndian.Uint64(buf[0:8]), err
+	if err != nil {
+		return 0, err
+	}
+
+	return binary.LittleEndian.Uint64(buf[0:8]), nil
 }
 
 // ReadUVarInt64 tries to read an unsigned varint from the input.
 func (in *Input) ReadUVarInt() (uint64, error) {
-	tmpUint64, err := binary.ReadUvarint(in)
-	if err != nil {
-		tmpUint64 = 0
-	}
-	return tmpUint64, err
+	return binary.ReadUvarint(in)
 }
 
 // ReadVarInt64 tries to read a signed varint from the input.
 func (in *Input) ReadVarInt() (int64, error) {
-	tmpInt64, err := binary.ReadVarint(in)
-	if err != nil {
-		tmpInt64 = 0
-	}
-	return tmpInt64, err
+	return binary.ReadVarint(in)
 }
 
 // ReadNullTerminatedString tries to read a null terminated string from the input.
