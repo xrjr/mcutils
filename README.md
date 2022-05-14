@@ -99,6 +99,13 @@ basicStat, err := query.QueryBasic("localhost", 25565)
 fullStat, err := query.QueryFull("localhost", 25565)
 ```
 
+### Bedrock
+
+```go
+// Stat returns stat of a minecraft:bedrock server
+stat, err := bedrock.Stat("localhost", 19132)
+```
+
 ### Rcon
 
 ```go
@@ -165,6 +172,17 @@ fs, err := queryclient.FullStat(challengeToken)
 
 // Disconnect closes the connection
 queryclient.Disconnect()
+```
+
+### Bedrock
+
+```go
+client := bedrock.NewClient("localhost", 19132)
+
+// Connect opens the connection, and can raise an error for example if the server is unreachable
+err := client.Connect()
+
+stat, err := client.Stat()
 ```
 
 ### Rcon
