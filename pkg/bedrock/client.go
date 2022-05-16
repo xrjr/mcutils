@@ -19,6 +19,10 @@ var (
 	// MagicBedrockValue
 	// hardcoded magic  https://github.com/facebookarchive/RakNet/blob/1a169895a900c9fc4841c556e16514182b75faf8/Source/RakPeer.cpp#L135
 	MagicBedrockValue = []byte{0x00, 0xFF, 0xFF, 0x00, 0xFE, 0xFE, 0xFE, 0xFE, 0xFD, 0xFD, 0xFD, 0xFD, 0x12, 0x34, 0x56, 0x78}
+
+	ErrEmptyResponse        = errors.New("empty response")
+	ErrNotIdUnconnectedPing = errors.New("first byte is not id_unconnected_pong")
+	ErrNotMagicBytes        = errors.New("magic bytes do not match")
 )
 
 // BedrockClient raklib-query client for bedrock edition
@@ -77,7 +81,7 @@ func parseStatResponse(in networking.Input) (*BEStat, error) {
 	data := strings.Split(response, ";")
 
 	if len(data) == 0 {
-		return nil, errors.New("empty response")
+		return nil, ErrEmptyResponse
 	}
 
 	stat := &BEStat{}
@@ -194,7 +198,7 @@ func (c *BedrockClient) Stat() (*BEStat, error) {
 	}
 
 	if packetId != 0x1C { // 0x1C = ID_UNCONNECTED_PONG
-		return nil, errors.New("first byte is not id_unconnected_pong")
+		return nil, ErrNotIdUnconnectedPing
 	}
 
 	// 0-16 - ???
@@ -202,7 +206,7 @@ func (c *BedrockClient) Stat() (*BEStat, error) {
 	// 33 - ???
 	magic, _ := statResponse.ReadBytes(33)
 	if !bytes.Equal(magic[16:32], MagicBedrockValue) {
-		return nil, errors.New("magic bytes do not match")
+		return nil, ErrNotMagicBytes
 	}
 
 	return parseStatResponse(statResponse)
