@@ -1,7 +1,7 @@
 package bedrock
 
 type unconnectedPongResponse struct {
-	ID              byte
+	PacketID        byte
 	ClientTimestamp uint64
 	ServerGUID      uint64
 	Magic           []byte
