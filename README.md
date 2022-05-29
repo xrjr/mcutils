@@ -30,7 +30,9 @@ This project has no dependency.
 
 - [Rcon](https://wiki.vg/Rcon)
 
-  
+- [Bedrock Ping](https://wiki.vg/Raknet_Protocol)
+
+
 
 > All protocols implementations support SRV record resolving. 
 >
@@ -66,6 +68,9 @@ Example : mcutils query basic localhost 25565
 
 $ mcutils rcon <hostname> <port> <password> <command>
 Example : mcutils rcon localhost 25575 mypassword "say hello"
+
+$ mcutils ping-bedrock <hostname> <port>
+Example : mcutils ping-bedrock localhost 19132
 ```
 
 
