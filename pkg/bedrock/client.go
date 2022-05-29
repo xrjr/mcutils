@@ -3,6 +3,9 @@ package bedrock
 import (
 	"bytes"
 	"errors"
+	"math/rand"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/xrjr/mcutils/pkg/networking"
@@ -16,6 +19,7 @@ const (
 var (
 	ErrInvalidPacketType error = errors.New("invalid packet type")
 	ErrInvalidMagic      error = errors.New("invalid magic")
+	ErrInvalidData       error = errors.New("invalid data")
 
 	RaknetMagic = [16]byte{0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78}
 )
@@ -71,16 +75,60 @@ func parseUnconnectedPongResponse(in networking.Input) (*unconnectedPongResponse
 	if err != nil {
 		return nil, err
 	}
-	res.Data = data
+
+	splittedData := strings.Split(data, ";")
+	if len(splittedData) < 12 {
+		return nil, err
+	}
+
+	res.GameName = splittedData[0]
+	res.MOTD = splittedData[1]
+
+	res.ProtocolVersion, err = strconv.Atoi(splittedData[2])
+	if err != nil {
+		return nil, err
+	}
+
+	res.MinecraftVersion = splittedData[3]
+
+	res.OnlinePlayers, err = strconv.Atoi(splittedData[4])
+	if err != nil {
+		return nil, err
+	}
+
+	res.MaxPlayers, err = strconv.Atoi(splittedData[5])
+	if err != nil {
+		return nil, err
+	}
+
+	res.ServerID, err = strconv.Atoi(splittedData[6])
+	if err != nil {
+		return nil, err
+	}
+
+	res.Map = splittedData[7]
+	res.GameMode = splittedData[8]
+	res.NintendoLimited = splittedData[9] != "0"
+
+	res.IPv4Port, err = strconv.Atoi(splittedData[10])
+	if err != nil {
+		return nil, err
+	}
+
+	res.IPv6Port, err = strconv.Atoi(splittedData[11])
+	if err != nil {
+		return nil, err
+	}
 
 	return &res, nil
 }
 
 // PingClient is the bedrock ping client.
 type PingClient struct {
-	hostname string
-	port     int
-	conn     *networking.UDPConn
+	hostname   string
+	port       int
+	conn       *networking.UDPConn
+	ClientGUID uint64
 
 	// options
 	SkipSRVLookup                bool
@@ -90,10 +138,12 @@ type PingClient struct {
 }
 
 // NewClient returns a well-formed *PingClient.
+// ClientGUID is set to a random value.
 func NewClient(hostname string, port int) *PingClient {
 	return &PingClient{
-		hostname: hostname,
-		port:     port,
+		hostname:   hostname,
+		port:       port,
+		ClientGUID: uint64(rand.Int()),
 
 		SkipSRVLookup:                false,
 		ForceUDPProtocolForSRVLookup: false,
@@ -119,6 +169,26 @@ func (client *PingClient) Connect() error {
 
 	client.conn = conn
 	return nil
+}
+
+func (client *PingClient) UnconnectedPing() (UnconnectedPong, int, error) {
+	if client.conn == nil {
+		return UnconnectedPong{}, -1, networking.ErrConnectionNotEstablished
+	}
+
+	unconnectedPingRequest := generateUnconnectedPingRequest(client.ClientGUID)
+
+	unconnectedPongResponse, err := client.conn.Send(unconnectedPingRequest)
+	if err != nil {
+		return UnconnectedPong{}, -1, err
+	}
+
+	unconnectedPong, err := parseUnconnectedPongResponse(unconnectedPongResponse)
+	if err != nil {
+		return UnconnectedPong{}, -1, err
+	}
+
+	return unconnectedPong.UnconnectedPong(), -1, nil
 }
 
 // Disconnect closes the connection.

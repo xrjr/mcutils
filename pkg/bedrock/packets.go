@@ -5,5 +5,49 @@ type unconnectedPongResponse struct {
 	ClientTimestamp uint64
 	ServerGUID      uint64
 	Magic           []byte
-	Data            string
+
+	GameName         string
+	MOTD             string
+	ProtocolVersion  int
+	MinecraftVersion string
+	OnlinePlayers    int
+	MaxPlayers       int
+	ServerID         int
+	Map              string
+	GameMode         string
+	NintendoLimited  bool
+	IPv4Port         int
+	IPv6Port         int
+}
+
+func (upr *unconnectedPongResponse) UnconnectedPong() UnconnectedPong {
+	return UnconnectedPong{
+		GameName:         upr.GameName,
+		MOTD:             upr.MOTD,
+		ProtocolVersion:  upr.ProtocolVersion,
+		MinecraftVersion: upr.MinecraftVersion,
+		OnlinePlayers:    upr.OnlinePlayers,
+		MaxPlayers:       upr.MaxPlayers,
+		ServerID:         upr.ServerID,
+		Map:              upr.Map,
+		GameMode:         upr.GameMode,
+		NintendoLimited:  upr.NintendoLimited,
+		IPv4Port:         upr.IPv4Port,
+		IPv6Port:         upr.IPv6Port,
+	}
+}
+
+type UnconnectedPong struct {
+	GameName         string
+	MOTD             string
+	ProtocolVersion  int
+	MinecraftVersion string
+	OnlinePlayers    int
+	MaxPlayers       int
+	ServerID         int
+	Map              string
+	GameMode         string
+	NintendoLimited  bool
+	IPv4Port         int
+	IPv6Port         int
 }
