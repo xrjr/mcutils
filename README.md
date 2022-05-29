@@ -3,7 +3,7 @@
 
 
 <p align="center">
- <img alt="logo" src="https://i.imgur.com/nIBQcRj.png" />
+ <img alt="logo" src="https://i.imgur.com/sDmt7Qa.png" />
 </p>
 
 
@@ -106,6 +106,12 @@ fullStat, err := query.QueryFull("localhost", 25565)
 response, err := rcon.Rcon("localhost", 25575, "password", "command")
 ```
 
+### Bedrock ping
+
+```go
+// Ping returns the server infos, and latency of a minecraft bedrock server.
+response, err := bedrock.Ping("localhost", 19132)
+```
 
 
 ## How to use (full control way) ?
@@ -160,7 +166,7 @@ challengeToken, err := queryclient.Handshake()
 // BasicStat returns several informations about the server like number of players, maximum number of players, etc... in a fully predictable way
 bs, err := queryclient.BasicStat(challengeToken)
 
-// FullStat returns several informations (more than BasicStat) in a JSON format, plus the list of connected players
+// FullStat returns several informations (more than BasicStat) in a Key/Value format, plus the list of connected players
 fs, err := queryclient.FullStat(challengeToken)
 
 // Disconnect closes the connection
@@ -185,4 +191,20 @@ res, err := rconclient.Command("playerlist")
 
 // Disconnect closes the connection
 rconclient.Disconnect()
+```
+
+### Bedrock Ping
+
+```go
+pingclient := ping.NewClient("localhost", 25565)
+
+// Connect opens the connection, and can raise an error for example if the server is unreachable
+err := pingclient.Connect()
+
+
+// UnconnectedPing is a request that retrieve server informations and latency
+pong, latency, err := pingclient.UnconnctedPing()
+
+// Disconnect closes the connection
+err = pingclient.Disconnect()
 ```
