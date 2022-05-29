@@ -110,6 +110,13 @@ func (out *Output) WriteString(s string) {
 	out.WriteBytes([]byte(s))
 }
 
+// WriteRaknetString writes a raknet string to the output.
+// It is a UTF-8 string prefixed with its size in bytes as a big endian unsigned short.
+func (out *Output) WriteRaknetString(s string) {
+	out.WriteBigEndianInt16(uint16(len(s)))
+	out.WriteBytes([]byte(s))
+}
+
 // MergeOutputs merge buffers of two outputs, creating a new output and without modifying any of the merged output buffer.
 func MergeOutputs(out1, out2 Output) Output {
 	out := NewOutput()
