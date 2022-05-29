@@ -50,7 +50,7 @@ func DialTCP(hostname string, port int, options DialTCPOptions) (*TCPConn, error
 		}
 	}
 
-	c, err := net.DialTimeout("tcp4", fmt.Sprintf("%s:%d", _hostname, _port), options.DialTimeout)
+	c, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", _hostname, _port), options.DialTimeout)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ func DialUDP(hostname string, port int, options DialUDPOptions) (*UDPConn, error
 		}
 	}
 
-	c, err := net.DialTimeout("udp4", fmt.Sprintf("%s:%d", _hostname, _port), options.DialTimeout)
+	c, err := net.DialTimeout("udp", fmt.Sprintf("%s:%d", _hostname, _port), options.DialTimeout)
 	if err != nil {
 		return nil, err
 	}
