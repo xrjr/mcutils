@@ -178,6 +178,8 @@ func (client *PingClient) UnconnectedPing() (UnconnectedPong, int, error) {
 
 	unconnectedPingRequest := generateUnconnectedPingRequest(client.ClientGUID)
 
+	startTime := time.Now().UnixMilli()
+
 	unconnectedPongResponse, err := client.conn.Send(unconnectedPingRequest)
 	if err != nil {
 		return UnconnectedPong{}, -1, err
@@ -188,7 +190,7 @@ func (client *PingClient) UnconnectedPing() (UnconnectedPong, int, error) {
 		return UnconnectedPong{}, -1, err
 	}
 
-	return unconnectedPong.UnconnectedPong(), -1, nil
+	return unconnectedPong.UnconnectedPong(), int(time.Now().UnixMilli() - startTime), nil
 }
 
 // Disconnect closes the connection.
