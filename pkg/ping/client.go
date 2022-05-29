@@ -202,6 +202,8 @@ func (client *PingClient) Ping() (int, error) {
 	pingRequest := generatePingRequest()
 	pingRequestPacket := transformToPacket(pingRequest)
 
+	startTime := time.Now().UnixMilli()
+
 	pingResponse, err := client.conn.Send(pingRequestPacket)
 	if err != nil {
 		return -1, err
@@ -212,12 +214,12 @@ func (client *PingClient) Ping() (int, error) {
 		return -1, err
 	}
 
-	pong, err := parsePongResponse(pingResponse)
+	_, err = parsePongResponse(pingResponse)
 	if err != nil {
 		return -1, err
 	}
 
-	return int(time.Now().UnixMilli() - pong.Payload), nil
+	return int(time.Now().UnixMilli() - startTime), nil
 }
 
 // Disconnect closes the connection.
