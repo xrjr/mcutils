@@ -1,5 +1,6 @@
 package bedrock
 
+// unconnectedPongResponse is the type respresenting the response of the unconnected ping request.
 type unconnectedPongResponse struct {
 	PacketID        byte
 	ClientTimestamp uint64
@@ -19,7 +20,8 @@ type unconnectedPongResponse struct {
 	IPv6Port         int
 }
 
-func (upr *unconnectedPongResponse) UnconnectedPong() UnconnectedPong {
+// unconnectedPong transforms the unconnectedPongResponse into a more human-usable UnconnectedPong struct.
+func (upr *unconnectedPongResponse) unconnectedPong() UnconnectedPong {
 	return UnconnectedPong{
 		GameName:         upr.GameName,
 		MOTD:             upr.MOTD,
@@ -35,6 +37,7 @@ func (upr *unconnectedPongResponse) UnconnectedPong() UnconnectedPong {
 	}
 }
 
+// UnconnectedPong contains unconnected pong informations.
 type UnconnectedPong struct {
 	GameName         string
 	MOTD             string

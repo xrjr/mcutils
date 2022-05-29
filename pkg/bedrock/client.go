@@ -24,6 +24,7 @@ var (
 	RaknetMagic = [16]byte{0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78}
 )
 
+// generateUnconnectedPingRequest generates a networking.Output corresponding to an unconnected ping request.
 func generateUnconnectedPingRequest(clientGUID uint64) networking.Output {
 	out := networking.NewOutput()
 
@@ -38,6 +39,7 @@ func generateUnconnectedPingRequest(clientGUID uint64) networking.Output {
 	return out
 }
 
+// parseUnconnectedPongResponse reads and parses a response (of type unconncted pong) into a unconnectedPongResponse.
 func parseUnconnectedPongResponse(in networking.Input) (*unconnectedPongResponse, error) {
 	var res unconnectedPongResponse
 
@@ -166,6 +168,7 @@ func (client *PingClient) Connect() error {
 	return nil
 }
 
+// Handshake sends an unconncted ping request to the server, and returns the pong response informations.
 func (client *PingClient) UnconnectedPing() (UnconnectedPong, int, error) {
 	if client.conn == nil {
 		return UnconnectedPong{}, -1, networking.ErrConnectionNotEstablished
@@ -190,7 +193,7 @@ func (client *PingClient) UnconnectedPing() (UnconnectedPong, int, error) {
 		return UnconnectedPong{}, -1, err
 	}
 
-	return unconnectedPong.UnconnectedPong(), int(time.Now().UnixMilli() - startTime), nil
+	return unconnectedPong.unconnectedPong(), int(time.Now().UnixMilli() - startTime), nil
 }
 
 // Disconnect closes the connection.
