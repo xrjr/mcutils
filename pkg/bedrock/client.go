@@ -104,8 +104,13 @@ func parseUnconnectedPongResponse(in networking.Input) (*unconnectedPongResponse
 	}
 
 	res.ServerID = splittedData[6]
-	res.Map = splittedData[7]
+	res.LevelName = splittedData[7]
 	res.GameMode = splittedData[8]
+
+	res.GameModeNumeric, err = strconv.Atoi(splittedData[9])
+	if err != nil {
+		return nil, err
+	}
 
 	res.IPv4Port, err = strconv.Atoi(splittedData[10])
 	if err != nil {

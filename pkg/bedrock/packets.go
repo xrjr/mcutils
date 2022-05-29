@@ -14,8 +14,9 @@ type unconnectedPongResponse struct {
 	OnlinePlayers    int
 	MaxPlayers       int
 	ServerID         string
-	Map              string
+	LevelName        string
 	GameMode         string
+	GameModeNumeric  int
 	IPv4Port         int
 	IPv6Port         int
 }
@@ -30,8 +31,9 @@ func (upr *unconnectedPongResponse) unconnectedPong() UnconnectedPong {
 		OnlinePlayers:    upr.OnlinePlayers,
 		MaxPlayers:       upr.MaxPlayers,
 		ServerID:         upr.ServerID,
-		Map:              upr.Map,
+		LevelName:        upr.LevelName,
 		GameMode:         upr.GameMode,
+		GameModeNumeric:  upr.GameModeNumeric,
 		IPv4Port:         upr.IPv4Port,
 		IPv6Port:         upr.IPv6Port,
 	}
@@ -39,15 +41,16 @@ func (upr *unconnectedPongResponse) unconnectedPong() UnconnectedPong {
 
 // UnconnectedPong contains unconnected pong informations.
 type UnconnectedPong struct {
-	GameName         string
-	MOTD             string
-	ProtocolVersion  int
-	MinecraftVersion string
-	OnlinePlayers    int
-	MaxPlayers       int
-	ServerID         string
-	Map              string
-	GameMode         string
-	IPv4Port         int
-	IPv6Port         int
+	GameName         string `json:"gameName"`
+	MOTD             string `json:"motd"`
+	ProtocolVersion  int    `json:"protocolVersion"`
+	MinecraftVersion string `json:"minecraftVersion"`
+	OnlinePlayers    int    `json:"onlinePlayers"`
+	MaxPlayers       int    `json:"maxPlayers"`
+	ServerID         string `json:"serverId"`
+	LevelName        string `json:"levelName"`
+	GameMode         string `json:"gameMode"`
+	GameModeNumeric  int    `json:"gameModeNumeric"`
+	IPv4Port         int    `json:"ipv4Port"`
+	IPv6Port         int    `json:"ipv6Port"`
 }
