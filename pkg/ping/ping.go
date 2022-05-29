@@ -3,7 +3,7 @@
 package ping
 
 // Ping returns the server list ping infos (JSON-like object), and latency of a minecraft server.
-// If an error occured at any point of the process, an nil json response, a latency of -1, and a non nil error are returned.
+// If an error occurred at any point of the process, an nil json response, a latency of -1, and a non nil error are returned.
 func Ping(hostname string, port int) (JSON, int, error) {
 	client := NewClient(hostname, port)
 
@@ -31,7 +31,7 @@ func Ping(hostname string, port int) (JSON, int, error) {
 }
 
 // PingLegacy returns the legacy server list ping infos, and latency of a minecraft server.
-// If an error occured at any point of the process, an empty response, a latency of -1, and a non nil error are returned.
+// If an error occurred at any point of the process, an empty response, a latency of -1, and a non nil error are returned.
 // If the minecraft server has a version <= 1.3, ProtocolNumber and MinecraftVersion are not set.
 func PingLegacy(hostname string, port int) (LegacyPingInfos, int, error) {
 	client := NewClientLegacy(hostname, port)
@@ -55,7 +55,7 @@ func PingLegacy(hostname string, port int) (LegacyPingInfos, int, error) {
 }
 
 // PingLegacy1_6_4 returns the legacy server list ping infos (using 1.6+ SLP protocol), and latency of a minecraft server.
-// If an error occured at any point of the process, an empty response, a latency of -1, and a non nil error are returned.
+// If an error occurred at any point of the process, an empty response, a latency of -1, and a non nil error are returned.
 // If the minecraft server has a version <= 1.3, ProtocolNumber and MinecraftVersion are not set.
 func PingLegacy1_6_4(hostname string, port int) (LegacyPingInfos, int, error) {
 	client := NewClientLegacy(hostname, port)
