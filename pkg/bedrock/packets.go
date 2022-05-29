@@ -12,10 +12,9 @@ type unconnectedPongResponse struct {
 	MinecraftVersion string
 	OnlinePlayers    int
 	MaxPlayers       int
-	ServerID         int
+	ServerID         string
 	Map              string
 	GameMode         string
-	NintendoLimited  bool
 	IPv4Port         int
 	IPv6Port         int
 }
@@ -31,7 +30,6 @@ func (upr *unconnectedPongResponse) UnconnectedPong() UnconnectedPong {
 		ServerID:         upr.ServerID,
 		Map:              upr.Map,
 		GameMode:         upr.GameMode,
-		NintendoLimited:  upr.NintendoLimited,
 		IPv4Port:         upr.IPv4Port,
 		IPv6Port:         upr.IPv6Port,
 	}
@@ -44,10 +42,9 @@ type UnconnectedPong struct {
 	MinecraftVersion string
 	OnlinePlayers    int
 	MaxPlayers       int
-	ServerID         int
+	ServerID         string
 	Map              string
 	GameMode         string
-	NintendoLimited  bool
 	IPv4Port         int
 	IPv6Port         int
 }

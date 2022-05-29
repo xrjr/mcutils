@@ -13,7 +13,7 @@ import (
 
 const (
 	UnconnectedPingPacketID byte = 0x01
-	UnconnectedPongPacketID byte = 0x03
+	UnconnectedPongPacketID byte = 0x1C
 )
 
 var (
@@ -101,14 +101,9 @@ func parseUnconnectedPongResponse(in networking.Input) (*unconnectedPongResponse
 		return nil, err
 	}
 
-	res.ServerID, err = strconv.Atoi(splittedData[6])
-	if err != nil {
-		return nil, err
-	}
-
+	res.ServerID = splittedData[6]
 	res.Map = splittedData[7]
 	res.GameMode = splittedData[8]
-	res.NintendoLimited = splittedData[9] != "0"
 
 	res.IPv4Port, err = strconv.Atoi(splittedData[10])
 	if err != nil {
@@ -181,6 +176,11 @@ func (client *PingClient) UnconnectedPing() (UnconnectedPong, int, error) {
 	startTime := time.Now().UnixMilli()
 
 	unconnectedPongResponse, err := client.conn.Send(unconnectedPingRequest)
+	if err != nil {
+		return UnconnectedPong{}, -1, err
+	}
+
+	err = client.conn.SetReadDeadline(client.ReadTimeout)
 	if err != nil {
 		return UnconnectedPong{}, -1, err
 	}
