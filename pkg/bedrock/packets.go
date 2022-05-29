@@ -14,8 +14,9 @@ type unconnectedPongResponse struct {
 	OnlinePlayers    int
 	MaxPlayers       int
 	ServerID         string
-	Map              string
+	LevelName        string
 	GameMode         string
+	GameModeNumeric  int
 	IPv4Port         int
 	IPv6Port         int
 }
@@ -30,8 +31,9 @@ func (upr *unconnectedPongResponse) unconnectedPong() UnconnectedPong {
 		OnlinePlayers:    upr.OnlinePlayers,
 		MaxPlayers:       upr.MaxPlayers,
 		ServerID:         upr.ServerID,
-		Map:              upr.Map,
+		LevelName:        upr.LevelName,
 		GameMode:         upr.GameMode,
+		GameModeNumeric:  upr.GameModeNumeric,
 		IPv4Port:         upr.IPv4Port,
 		IPv6Port:         upr.IPv6Port,
 	}
@@ -46,8 +48,9 @@ type UnconnectedPong struct {
 	OnlinePlayers    int
 	MaxPlayers       int
 	ServerID         string
-	Map              string
+	LevelName        string
 	GameMode         string
+	GameModeNumeric  int
 	IPv4Port         int
 	IPv6Port         int
 }
