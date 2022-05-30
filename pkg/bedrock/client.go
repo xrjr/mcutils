@@ -41,7 +41,7 @@ func generateUnconnectedPingRequest(clientGUID uint64) networking.Output {
 
 // parseUnconnectedPongResponse reads and parses a response (of type unconncted pong) into a unconnectedPongResponse.
 func parseUnconnectedPongResponse(in networking.Input) (*unconnectedPongResponse, error) {
-	var res unconnectedPongResponse
+	res := new(unconnectedPongResponse)
 
 	packetID, err := in.ReadByte()
 	if err != nil {
@@ -79,7 +79,7 @@ func parseUnconnectedPongResponse(in networking.Input) (*unconnectedPongResponse
 	}
 
 	splittedData := strings.Split(data, ";")
-	if len(splittedData) < 9 {
+	if len(splittedData) < 8 {
 		return nil, ErrInvalidData
 	}
 
@@ -105,16 +105,25 @@ func parseUnconnectedPongResponse(in networking.Input) (*unconnectedPongResponse
 
 	res.ServerID = splittedData[6]
 	res.LevelName = splittedData[7]
+
+	if len(splittedData) < 9 {
+		return res, nil
+	}
+
 	res.GameMode = splittedData[8]
 
-	if len(splittedData) > 9 && splittedData[9] != "" {
+	if len(splittedData) < 10 {
+		return res, nil
+	}
+
+	if splittedData[9] != "" {
 		res.GameModeNumeric, err = strconv.Atoi(splittedData[9])
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	if len(splittedData) == 12 {
+	if len(splittedData) > 10 {
 		res.IPv4Port, err = strconv.Atoi(splittedData[10])
 		if err != nil {
 			return nil, err
@@ -126,7 +135,7 @@ func parseUnconnectedPongResponse(in networking.Input) (*unconnectedPongResponse
 		}
 	}
 
-	return &res, nil
+	return res, nil
 }
 
 // PingClient is the bedrock ping client.
