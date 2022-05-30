@@ -2,8 +2,8 @@ package bedrock
 
 import (
 	"bytes"
-	"encoding/binary"
 	"errors"
+	"math/rand"
 	"strconv"
 	"strings"
 	"time"
@@ -12,25 +12,125 @@ import (
 )
 
 const (
-	UnconnectedPing = 0x01
+	UnconnectedPingPacketID byte = 0x01
+	UnconnectedPongPacketID byte = 0x1C
 )
 
 var (
-	// MagicBedrockValue
-	// hardcoded magic  https://github.com/facebookarchive/RakNet/blob/1a169895a900c9fc4841c556e16514182b75faf8/Source/RakPeer.cpp#L135
-	MagicBedrockValue = []byte{0x00, 0xFF, 0xFF, 0x00, 0xFE, 0xFE, 0xFE, 0xFE, 0xFD, 0xFD, 0xFD, 0xFD, 0x12, 0x34, 0x56, 0x78}
+	ErrInvalidPacketType error = errors.New("invalid packet type")
+	ErrInvalidMagic      error = errors.New("invalid magic")
+	ErrInvalidData       error = errors.New("invalid data")
 
-	ErrEmptyResponse        = errors.New("empty response")
-	ErrNotIdUnconnectedPing = errors.New("first byte is not id_unconnected_pong")
-	ErrNotMagicBytes        = errors.New("magic bytes do not match")
+	RaknetMagic = [16]byte{0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78}
 )
 
-// BedrockClient raklib-query client for bedrock edition
-type BedrockClient struct {
-	hostname  string
-	port      int
-	conn      *networking.UDPConn
-	sessionID []byte
+// generateUnconnectedPingRequest generates a networking.Output corresponding to an unconnected ping request.
+func generateUnconnectedPingRequest(clientGUID uint64) networking.Output {
+	out := networking.NewOutput()
+
+	out.WriteByte(UnconnectedPingPacketID)
+
+	out.WriteBigEndianInt64(uint64(time.Now().Unix()))
+
+	out.WriteBytes(RaknetMagic[:])
+
+	out.WriteBigEndianInt64(clientGUID)
+
+	return out
+}
+
+// parseUnconnectedPongResponse reads and parses a response (of type unconncted pong) into a unconnectedPongResponse.
+func parseUnconnectedPongResponse(in networking.Input) (*unconnectedPongResponse, error) {
+	var res unconnectedPongResponse
+
+	packetID, err := in.ReadByte()
+	if err != nil {
+		return nil, err
+	}
+	res.PacketID = packetID
+	if res.PacketID != UnconnectedPongPacketID {
+		return nil, ErrInvalidPacketType
+	}
+
+	clientTimestamp, err := in.ReadBigEndianInt64()
+	if err != nil {
+		return nil, err
+	}
+	res.ClientTimestamp = clientTimestamp
+
+	serverGUID, err := in.ReadBigEndianInt64()
+	if err != nil {
+		return nil, err
+	}
+	res.ServerGUID = serverGUID
+
+	magic, err := in.ReadBytes(16)
+	if err != nil {
+		return nil, err
+	}
+	res.Magic = magic
+	if !bytes.Equal(res.Magic, RaknetMagic[:]) {
+		return nil, ErrInvalidMagic
+	}
+
+	data, err := in.ReadRaknetString()
+	if err != nil {
+		return nil, err
+	}
+
+	splittedData := strings.Split(data, ";")
+	if len(splittedData) < 12 {
+		return nil, err
+	}
+
+	res.GameName = splittedData[0]
+	res.MOTD = splittedData[1]
+
+	res.ProtocolVersion, err = strconv.Atoi(splittedData[2])
+	if err != nil {
+		return nil, err
+	}
+
+	res.MinecraftVersion = splittedData[3]
+
+	res.OnlinePlayers, err = strconv.Atoi(splittedData[4])
+	if err != nil {
+		return nil, err
+	}
+
+	res.MaxPlayers, err = strconv.Atoi(splittedData[5])
+	if err != nil {
+		return nil, err
+	}
+
+	res.ServerID = splittedData[6]
+	res.LevelName = splittedData[7]
+	res.GameMode = splittedData[8]
+
+	res.GameModeNumeric, err = strconv.Atoi(splittedData[9])
+	if err != nil {
+		return nil, err
+	}
+
+	res.IPv4Port, err = strconv.Atoi(splittedData[10])
+	if err != nil {
+		return nil, err
+	}
+
+	res.IPv6Port, err = strconv.Atoi(splittedData[11])
+	if err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+// PingClient is the bedrock ping client.
+type PingClient struct {
+	hostname   string
+	port       int
+	conn       *networking.UDPConn
+	ClientGUID uint64
 
 	// options
 	SkipSRVLookup                bool
@@ -39,117 +139,13 @@ type BedrockClient struct {
 	ReadTimeout                  time.Duration
 }
 
-// generateSessionID generates the session id
-func generateSessionID() []byte {
-	sid := make([]byte, 8)
-	binary.LittleEndian.PutUint64(sid, 2)
-
-	return sid
-}
-
-// generateTimestamp 64bit current time as bytes
-func generateTimestamp() []byte {
-	t := make([]byte, 8)
-	binary.LittleEndian.PutUint64(t, uint64(time.Now().Unix()))
-
-	return t
-}
-
-// generateStatRequest generates a networking.Request corresponding un
-func generateStatRequest(sessionID []byte) networking.Output {
-	out := networking.NewOutput()
-
-	out.WriteSingleByte(UnconnectedPing)
-
-	out.WriteBytes(generateTimestamp())
-
-	out.WriteBytes(MagicBedrockValue)
-
-	out.WriteBytes(sessionID)
-
-	return out
-}
-
-// parseStatResponse reads and parses a response into a *BEStat
-func parseStatResponse(in networking.Input) (*BEStat, error) {
-	response, err := in.ReadString()
-	if err != nil {
-		return nil, err
-	}
-
-	// TODO: if server-name or motd contains a ';' it is no escaped, and will break this parsing
-	data := strings.Split(response, ";")
-
-	if len(data) == 0 {
-		return nil, ErrEmptyResponse
-	}
-
-	stat := &BEStat{}
-
-	// Yes, it looks disgusting, but I think this is the best option to parse the response
-	// since the response comes in a string with ';' as a divide
-
-	if len(data) >= 1 {
-		stat.GameName = data[0]
-	}
-
-	if len(data) >= 2 {
-		stat.MOTD = data[1]
-	}
-
-	if len(data) >= 3 {
-		stat.Protocol = data[2]
-	}
-
-	if len(data) >= 4 {
-		stat.Version = data[3]
-	}
-
-	if len(data) >= 5 {
-		stat.Players, _ = strconv.Atoi(data[4])
-	}
-
-	if len(data) >= 6 {
-		stat.MaxPlayers, _ = strconv.Atoi(data[5])
-	}
-
-	if len(data) >= 7 {
-		stat.ServerID, _ = strconv.ParseInt(data[6], 10, 64)
-	}
-
-	if len(data) >= 8 {
-		stat.Map = data[7]
-	}
-
-	if len(data) >= 9 {
-		stat.GameMode = data[8]
-	}
-
-	if len(data) >= 10 {
-		stat.NintendoLimited = data[9]
-	}
-
-	if len(data) >= 11 {
-		stat.IPv4Port, _ = strconv.Atoi(data[10])
-	}
-
-	if len(data) >= 12 {
-		stat.IPv6Port, _ = strconv.Atoi(data[11])
-	}
-
-	if len(data) >= 13 {
-		// What is this?
-		stat.Extra = data[12]
-	}
-
-	return stat, err
-}
-
-// NewClient returns a formed *BedrockClient
-func NewClient(hostname string, port int) *BedrockClient {
-	return &BedrockClient{
-		hostname: hostname,
-		port:     port,
+// NewClient returns a well-formed *PingClient.
+// ClientGUID is set to a random value.
+func NewClient(hostname string, port int) *PingClient {
+	return &PingClient{
+		hostname:   hostname,
+		port:       port,
+		ClientGUID: uint64(rand.Int()),
 
 		SkipSRVLookup:                false,
 		ForceUDPProtocolForSRVLookup: false,
@@ -159,67 +155,60 @@ func NewClient(hostname string, port int) *BedrockClient {
 }
 
 // Connect establishes a connection via UDP.
-func (c *BedrockClient) Connect() error {
-	if c.conn != nil {
+func (client *PingClient) Connect() error {
+	if client.conn != nil {
 		return networking.ErrConnectionAlreadyEstablished
 	}
 
-	conn, err := networking.DialUDP(c.hostname, c.port, networking.DialUDPOptions{
-		SkipSRVLookup:                c.SkipSRVLookup,
-		ForceUDPProtocolForSRVLookup: c.ForceUDPProtocolForSRVLookup,
-		DialTimeout:                  c.DialTimeout,
+	conn, err := networking.DialUDP(client.hostname, client.port, networking.DialUDPOptions{
+		SkipSRVLookup:                client.SkipSRVLookup,
+		ForceUDPProtocolForSRVLookup: client.ForceUDPProtocolForSRVLookup,
+		DialTimeout:                  client.DialTimeout,
 	})
 	if err != nil {
 		return err
 	}
 
-	c.sessionID = generateSessionID()
-	c.conn = conn
+	client.conn = conn
 	return nil
 }
 
-// Stat sends a request to get information about the server and returns the result.
-func (c *BedrockClient) Stat() (*BEStat, error) {
-	statRequest := generateStatRequest(c.sessionID)
+// Handshake sends an unconncted ping request to the server, and returns the pong response informations.
+func (client *PingClient) UnconnectedPing() (UnconnectedPong, int, error) {
+	if client.conn == nil {
+		return UnconnectedPong{}, -1, networking.ErrConnectionNotEstablished
+	}
 
-	err := c.conn.SetReadDeadline(c.ReadTimeout)
+	unconnectedPingRequest := generateUnconnectedPingRequest(client.ClientGUID)
+
+	startTime := time.Now().UnixMilli()
+
+	unconnectedPongResponse, err := client.conn.Send(unconnectedPingRequest)
 	if err != nil {
-		return nil, err
+		return UnconnectedPong{}, -1, err
 	}
 
-	statResponse, err := c.conn.Send(statRequest)
+	err = client.conn.SetReadDeadline(client.ReadTimeout)
 	if err != nil {
-		return nil, err
+		return UnconnectedPong{}, -1, err
 	}
 
-	packetId, err := statResponse.ReadByte()
+	unconnectedPong, err := parseUnconnectedPongResponse(unconnectedPongResponse)
 	if err != nil {
-		return nil, err
+		return UnconnectedPong{}, -1, err
 	}
 
-	if packetId != 0x1C { // 0x1C = ID_UNCONNECTED_PONG
-		return nil, ErrNotIdUnconnectedPing
-	}
-
-	// 0-16 - ???
-	// 16-32 - magic
-	// 33 - ???
-	magic, _ := statResponse.ReadBytes(33)
-	if !bytes.Equal(magic[16:32], MagicBedrockValue) {
-		return nil, ErrNotMagicBytes
-	}
-
-	return parseStatResponse(statResponse)
+	return unconnectedPong.unconnectedPong(), int(time.Now().UnixMilli() - startTime), nil
 }
 
 // Disconnect closes the connection.
 // Connection is made not usable anymore no matter if the it closed properly or not.
-func (c *BedrockClient) Disconnect() error {
-	if c.conn == nil {
+func (client *PingClient) Disconnect() error {
+	if client.conn == nil {
 		return networking.ErrConnectionNotEstablished
 	}
 
-	err := c.conn.Close()
-	c.conn = nil
+	err := client.conn.Close()
+	client.conn = nil
 	return err
 }

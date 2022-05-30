@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -36,13 +35,11 @@ func (PingLegacy1_6_4Command) Execute(params []string) bool {
 		return false
 	}
 
-	jsonProperties, err := json.MarshalIndent(infos, "", "\t")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error : %s.\n", err.Error())
-		return false
-	}
-
-	fmt.Println(string(jsonProperties))
+	fmt.Printf("Protocol Version : %d\n", infos.ProtocolVersion)
+	fmt.Printf("Minecraft Version : %s\n", infos.MinecraftVersion)
+	fmt.Printf("MOTD : %s\n", infos.MOTD)
+	fmt.Printf("Online Players : %d\n", infos.OnlinePlayers)
+	fmt.Printf("Max Players : %d\n", infos.MaxPlayers)
 	fmt.Printf("Latency : %d ms\n", latency)
 	return true
 }

@@ -10,15 +10,18 @@ import (
 	"github.com/xrjr/mcutils/pkg/networking"
 )
 
+const (
+	PluginMessagePacketIdentifier byte = 0xFA
+	SingleByteIdentifierValue     byte = 0xFF
+	ProtocolNumber1_6_4           byte = 78
+)
+
 var (
-	CommonLegacyRequest           [2]byte  = [2]byte{0xFE, 0x01}
-	PluginMessagePacketIdentifier byte     = 0xFA
-	SingleByteIdentifierValue     byte     = 0xFF
-	Post1_3Padding                [6]byte  = [6]byte{0x00, 0xA7, 0x00, 0x31, 0x00, 0x00}
-	Post1_3Delimiter              [2]byte  = [2]byte{0x00, 0x00}
-	Pre1_3Delimiter               [2]byte  = [2]byte{0x00, 0xA7}
-	MCPingHostStringWithLength    [24]byte = [24]byte{0x00, 0x0B, 0x00, 0x4D, 0x00, 0x43, 0x00, 0x7C, 0x00, 0x50, 0x00, 0x69, 0x00, 0x6E, 0x00, 0x67, 0x00, 0x48, 0x00, 0x6F, 0x00, 0x73, 0x00, 0x74} // MC|PingHost string, UTF16BE encoded, preceded by its length in characters as a short
-	ProtocolNumber1_6_4           byte     = 78
+	CommonLegacyRequest        [2]byte  = [2]byte{0xFE, 0x01}
+	Post1_3Padding             [6]byte  = [6]byte{0x00, 0xA7, 0x00, 0x31, 0x00, 0x00}
+	Post1_3Delimiter           [2]byte  = [2]byte{0x00, 0x00}
+	Pre1_3Delimiter            [2]byte  = [2]byte{0x00, 0xA7}
+	MCPingHostStringWithLength [24]byte = [24]byte{0x00, 0x0B, 0x00, 0x4D, 0x00, 0x43, 0x00, 0x7C, 0x00, 0x50, 0x00, 0x69, 0x00, 0x6E, 0x00, 0x67, 0x00, 0x48, 0x00, 0x6F, 0x00, 0x73, 0x00, 0x74} // MC|PingHost string, UTF16BE encoded, preceded by its length in characters as a short
 )
 
 // bigEndianUTF16ToString converts an array of byte containing an UTF-16BE encoded string into a string.

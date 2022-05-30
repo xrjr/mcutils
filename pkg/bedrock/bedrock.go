@@ -1,23 +1,24 @@
 package bedrock
 
-// Stat returns the status of the minecraft:bedrock server
-func Stat(hostname string, port int) (BEStat, error) {
+// Ping returns the server infos, and latency of a minecraft bedrock server.
+// If an error occurred at any point of the process, an empty pong response, a latency of -1, and a non nil error are returned.
+func Ping(hostname string, port int) (UnconnectedPong, int, error) {
 	client := NewClient(hostname, port)
 
 	err := client.Connect()
 	if err != nil {
-		return BEStat{}, err
+		return UnconnectedPong{}, -1, err
 	}
 
-	stat, err := client.Stat()
+	unconnectedPong, latency, err := client.UnconnectedPing()
 	if err != nil {
-		return BEStat{}, err
+		return UnconnectedPong{}, -1, err
 	}
 
 	err = client.Disconnect()
 	if err != nil {
-		return BEStat{}, err
+		return UnconnectedPong{}, -1, err
 	}
 
-	return *stat, nil
+	return unconnectedPong, latency, nil
 }

@@ -194,6 +194,7 @@ func (client *PingClient) Handshake() (Handshake, error) {
 
 // Ping sends a ping request to the server, and returns the latency in ms.
 // A ping request must be done after a handshake request has already been done.
+// Latency will be returned if there is no error, or if the error occurred  during response parsing.
 func (client *PingClient) Ping() (int, error) {
 	if client.conn == nil {
 		return -1, networking.ErrConnectionNotEstablished
@@ -201,6 +202,8 @@ func (client *PingClient) Ping() (int, error) {
 
 	pingRequest := generatePingRequest()
 	pingRequestPacket := transformToPacket(pingRequest)
+
+	startTime := time.Now().UnixMilli()
 
 	pingResponse, err := client.conn.Send(pingRequestPacket)
 	if err != nil {
@@ -212,12 +215,15 @@ func (client *PingClient) Ping() (int, error) {
 		return -1, err
 	}
 
-	pong, err := parsePongResponse(pingResponse)
+	_, err = parsePongResponse(pingResponse)
+
+	latency := int(time.Now().UnixMilli() - startTime)
+
 	if err != nil {
-		return -1, err
+		return latency, err
 	}
 
-	return int(time.Now().UnixMilli() - pong.Payload), nil
+	return latency, nil
 }
 
 // Disconnect closes the connection.

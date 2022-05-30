@@ -304,3 +304,27 @@ func TestReadString(t *testing.T) {
 		}
 	}
 }
+
+func TestReadRaknetString(t *testing.T) {
+	inputs := []Input{
+		NewInput(bytes.NewBuffer([]byte{0x00, 0x06, 0x61, 0x7A, 0x65, 0x72, 0x74, 0x79, 0x61, 0x7A, 0x65, 0x72, 0x74, 0x79})),
+		NewInput(bytes.NewBuffer([]byte{0x00, 0x07, 0x61, 0x7A, 0x65, 0x72, 0x74, 0x79})),
+		NewInput(bytes.NewBuffer([]byte{})),
+	}
+	expectedValues := []string{"azerty", "", ""}
+	expectedErrors := []bool{false, true, true}
+
+	var res string
+	var err error
+
+	for i := 0; i < len(inputs); i++ {
+		res, err = inputs[i].ReadRaknetString()
+
+		if res != expectedValues[i] {
+			t.Errorf("Value %d: Expected %v got %v.", i, expectedValues[i], res)
+		}
+		if (err != nil) != expectedErrors[i] {
+			t.Errorf("Error %d: Expected %v got %v.", i, expectedErrors[i], err != nil)
+		}
+	}
+}

@@ -370,6 +370,26 @@ func TestWriteString(t *testing.T) {
 	}
 }
 
+func TestWriteRaknetString(t *testing.T) {
+	inputs := []string{
+		"azerty",
+	}
+	expectedValues := [][]byte{
+		{0x00, 0x06, 0x61, 0x7A, 0x65, 0x72, 0x74, 0x79},
+	}
+
+	var out Output
+
+	for i := 0; i < len(inputs); i++ {
+		out = NewOutput()
+		out.WriteRaknetString(inputs[i])
+
+		if !BytesEqual(out.buf, expectedValues[i]) {
+			t.Errorf("Value %d: Expected %v got %v.", i, expectedValues[i], out.buf)
+		}
+	}
+}
+
 func TestMergeOutputs(t *testing.T) {
 	out1 := NewOutput()
 	out2 := NewOutput()

@@ -31,7 +31,7 @@ func (in *Input) ReadByte() (byte, error) {
 	return buf[0], err
 }
 
-// ReadBytes tries to read a slice of byte of size n from the input.
+// ReadBytes tries to read a slice of bytes of size n from the input.
 func (in *Input) ReadBytes(n int) ([]byte, error) {
 	var buf []byte = make([]byte, n)
 	totalBytesRead := 0
@@ -150,6 +150,17 @@ func (in *Input) ReadNullTerminatedString() (string, error) {
 // It is a UTF-8 string prefixed with its size in bytes as an unsigned varint.
 func (in *Input) ReadString() (string, error) {
 	length, err := in.ReadUVarInt()
+	if err != nil {
+		return "", err
+	}
+	bytesString, err := in.ReadBytes(int(length))
+	return string(bytesString), err
+}
+
+// ReadRaknetString tries to read a raknet string from the input.
+// It is a UTF-8 string prefixed with its size in bytes as a big endian unsigned short.
+func (in *Input) ReadRaknetString() (string, error) {
+	length, err := in.ReadBigEndianInt16()
 	if err != nil {
 		return "", err
 	}
