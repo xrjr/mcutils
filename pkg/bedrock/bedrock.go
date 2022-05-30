@@ -1,3 +1,5 @@
+// bedrock package implements the unconnected ping sequence of the raknet protocol (used by minecraft bedrock servers).
+// This package is strictly compliant with the following documentation : https://wiki.vg/Raknet_Protocol.
 package bedrock
 
 // Ping returns the server infos, and latency of a minecraft bedrock server.
