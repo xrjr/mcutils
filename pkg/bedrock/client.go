@@ -79,8 +79,8 @@ func parseUnconnectedPongResponse(in networking.Input) (*unconnectedPongResponse
 	}
 
 	splittedData := strings.Split(data, ";")
-	if len(splittedData) < 12 {
-		return nil, err
+	if len(splittedData) < 9 {
+		return nil, ErrInvalidData
 	}
 
 	res.GameName = splittedData[0]
@@ -107,19 +107,23 @@ func parseUnconnectedPongResponse(in networking.Input) (*unconnectedPongResponse
 	res.LevelName = splittedData[7]
 	res.GameMode = splittedData[8]
 
-	res.GameModeNumeric, err = strconv.Atoi(splittedData[9])
-	if err != nil {
-		return nil, err
+	if len(splittedData) > 9 && splittedData[9] != "" {
+		res.GameModeNumeric, err = strconv.Atoi(splittedData[9])
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	res.IPv4Port, err = strconv.Atoi(splittedData[10])
-	if err != nil {
-		return nil, err
-	}
+	if len(splittedData) == 12 {
+		res.IPv4Port, err = strconv.Atoi(splittedData[10])
+		if err != nil {
+			return nil, err
+		}
 
-	res.IPv6Port, err = strconv.Atoi(splittedData[11])
-	if err != nil {
-		return nil, err
+		res.IPv6Port, err = strconv.Atoi(splittedData[11])
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &res, nil
