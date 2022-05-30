@@ -79,47 +79,76 @@ func parseUnconnectedPongResponse(in networking.Input) (*unconnectedPongResponse
 	}
 
 	splittedData := strings.Split(data, ";")
-	if len(splittedData) < 12 {
-		return nil, err
+
+	if len(splittedData) >= 1 {
+		res.GameName = splittedData[0]
 	}
 
-	res.GameName = splittedData[0]
-	res.MOTD = splittedData[1]
+	if len(splittedData) >= 2 {
+		res.MOTD = splittedData[1]
 
-	res.ProtocolVersion, err = strconv.Atoi(splittedData[2])
-	if err != nil {
-		return nil, err
 	}
 
-	res.MinecraftVersion = splittedData[3]
-
-	res.OnlinePlayers, err = strconv.Atoi(splittedData[4])
-	if err != nil {
-		return nil, err
+	if len(splittedData) >= 3 && splittedData[2] != "" {
+		res.ProtocolVersion, err = strconv.Atoi(splittedData[2])
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	res.MaxPlayers, err = strconv.Atoi(splittedData[5])
-	if err != nil {
-		return nil, err
+	if len(splittedData) >= 4 {
+		res.MinecraftVersion = splittedData[3]
+
 	}
 
-	res.ServerID = splittedData[6]
-	res.LevelName = splittedData[7]
-	res.GameMode = splittedData[8]
-
-	res.GameModeNumeric, err = strconv.Atoi(splittedData[9])
-	if err != nil {
-		return nil, err
+	if len(splittedData) >= 5 && splittedData[4] != "" {
+		res.OnlinePlayers, err = strconv.Atoi(splittedData[4])
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	res.IPv4Port, err = strconv.Atoi(splittedData[10])
-	if err != nil {
-		return nil, err
+	if len(splittedData) >= 6 && splittedData[5] != "" {
+		res.MaxPlayers, err = strconv.Atoi(splittedData[5])
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	res.IPv6Port, err = strconv.Atoi(splittedData[11])
-	if err != nil {
-		return nil, err
+	if len(splittedData) >= 7 {
+		res.ServerID = splittedData[6]
+
+	}
+
+	if len(splittedData) >= 8 {
+		res.LevelName = splittedData[7]
+
+	}
+
+	if len(splittedData) >= 9 {
+		res.GameMode = splittedData[8]
+
+	}
+
+	if len(splittedData) >= 10 && splittedData[9] != "" {
+		res.GameModeNumeric, err = strconv.Atoi(splittedData[9])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if len(splittedData) >= 11 && splittedData[10] != "" {
+		res.IPv4Port, err = strconv.Atoi(splittedData[10])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if len(splittedData) >= 12 && splittedData[11] != "" {
+		res.IPv6Port, err = strconv.Atoi(splittedData[11])
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &res, nil
