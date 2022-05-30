@@ -19,7 +19,6 @@ const (
 var (
 	ErrInvalidPacketType error = errors.New("invalid packet type")
 	ErrInvalidMagic      error = errors.New("invalid magic")
-	ErrInvalidData       error = errors.New("invalid data")
 
 	RaknetMagic = [16]byte{0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78}
 )
