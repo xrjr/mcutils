@@ -212,12 +212,13 @@ func (client *PingClient) UnconnectedPing() (UnconnectedPong, int, error) {
 
 	startTime := time.Now().UnixMilli()
 
-	unconnectedPongResponse, err := client.conn.Send(unconnectedPingRequest)
+	// UDPConn reads are made in send method
+	err := client.conn.SetReadDeadline(client.ReadTimeout)
 	if err != nil {
 		return UnconnectedPong{}, -1, err
 	}
 
-	err = client.conn.SetReadDeadline(client.ReadTimeout)
+	unconnectedPongResponse, err := client.conn.Send(unconnectedPingRequest)
 	if err != nil {
 		return UnconnectedPong{}, -1, err
 	}
