@@ -36,8 +36,11 @@ func (cmd RconCommand) Execute(params []string, jsonFormat bool) bool {
 		return false
 	}
 
-	fmt.Println(response)
-	return true
+	if jsonFormat {
+		return cmd.jsonOutput(response)
+	}
+
+	return cmd.basicOutput(response)
 }
 
 func (RconCommand) basicOutput(response string) bool {
