@@ -49,9 +49,13 @@ func (QueryFullCommand) basicOutput(fs query.FullStat) bool {
 		fmt.Fprintf(os.Stderr, " - %s : %s\n", k, v)
 	}
 
-	fmt.Println("Online Players :")
-	for _, v := range fs.OnlinePlayers {
-		fmt.Fprintf(os.Stderr, " - %s\n", v)
+	if len(fs.OnlinePlayers) == 0 {
+		fmt.Println("Online Players : None")
+	} else {
+		fmt.Println("Online Players :")
+		for _, v := range fs.OnlinePlayers {
+			fmt.Fprintf(os.Stderr, " - %s\n", v)
+		}
 	}
 
 	return true
