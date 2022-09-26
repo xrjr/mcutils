@@ -23,7 +23,7 @@ func (PingCommand) Usage() string {
 	return "<hostname> <port>"
 }
 
-func (PingCommand) Execute(params []string, jsonFormat bool) bool {
+func (cmd PingCommand) Execute(params []string, jsonFormat bool) bool {
 	port, err := strconv.Atoi(params[1])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Invalid port.")
@@ -36,6 +36,14 @@ func (PingCommand) Execute(params []string, jsonFormat bool) bool {
 		return false
 	}
 
+	if jsonFormat {
+		return cmd.jsonOutput(properties, latency)
+	}
+
+	return cmd.basicOutput(properties, latency)
+}
+
+func (PingCommand) basicOutput(properties ping.JSON, latency int) bool {
 	jsonProperties, err := json.MarshalIndent(properties, "", "\t")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error : %s.\n", err.Error())
@@ -44,5 +52,25 @@ func (PingCommand) Execute(params []string, jsonFormat bool) bool {
 
 	fmt.Println("Properties :", string(jsonProperties))
 	fmt.Printf("Latency : %d ms\n", latency)
+
+	return true
+}
+
+func (PingCommand) jsonOutput(properties ping.JSON, latency int) bool {
+	type jsonResponse struct {
+		Properties ping.JSON `json:"properties"`
+		Latency    int       `json:"latency"`
+	}
+
+	res := jsonResponse{
+		Properties: properties,
+		Latency:    latency,
+	}
+
+	err := json.NewEncoder(os.Stdout).Encode(res)
+	if err != nil {
+		return false
+	}
+
 	return true
 }
