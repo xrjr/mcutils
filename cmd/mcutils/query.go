@@ -22,7 +22,7 @@ func (QueryCommand) Usage() string {
 	return "<basic|full> <hostname> <port>"
 }
 
-func (QueryCommand) Execute(params []string) bool {
+func (QueryCommand) Execute(params []string, jsonFormat bool) bool {
 	if params[0] == "basic" {
 		port, err := strconv.Atoi(params[2])
 		if err != nil {

@@ -23,7 +23,7 @@ func (PingCommand) Usage() string {
 	return "<hostname> <port>"
 }
 
-func (PingCommand) Execute(params []string) bool {
+func (PingCommand) Execute(params []string, jsonFormat bool) bool {
 	port, err := strconv.Atoi(params[1])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Invalid port.")

@@ -22,7 +22,7 @@ func (PingLegacy1_6_4Command) Usage() string {
 	return "<hostname> <port>"
 }
 
-func (PingLegacy1_6_4Command) Execute(params []string) bool {
+func (PingLegacy1_6_4Command) Execute(params []string, jsonFormat bool) bool {
 	port, err := strconv.Atoi(params[1])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Invalid port.")

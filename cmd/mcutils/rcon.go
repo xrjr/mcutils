@@ -22,7 +22,7 @@ func (RconCommand) Usage() string {
 	return "<hostname> <port> <password> <command>"
 }
 
-func (RconCommand) Execute(params []string) bool {
+func (RconCommand) Execute(params []string, jsonFormat bool) bool {
 	port, err := strconv.Atoi(params[1])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Invalid port.")
