@@ -52,6 +52,9 @@ go install -ldflags="-w -s" github.com/xrjr/mcutils/cmd/mcutils@latest
 
 ### Usage
 
+<details>
+<summary>Show usage</summary>
+
 ```shell
 $ mcutils ping <hostname> <port>
 Example : mcutils ping localhost 25565
@@ -75,12 +78,12 @@ Example : mcutils rcon localhost 25575 mypassword "say hello"
 $ mcutils ping-bedrock <hostname> <port>
 Example : mcutils ping-bedrock localhost 19132
 ```
-
-
+</details>
 
 ## How to use (simple way) ?
 
-### Ping
+<details>
+<summary>Ping</summary>
 
 ```go
 // Ping returns the server list ping infos (JSON-like object), and latency of a minecraft server.
@@ -96,8 +99,10 @@ properties, latency, err := ping.PingLegacy("localhost", 25565)
 // Ping returns the legacy server list ping infos (using 1.6+ SLP protocol), and latency of a minecraft server.
 properties, latency, err := ping.PingLegacy1_6_4("localhost", 25565)
 ```
+</details>
 
-### Query
+<details>
+<summary>Query</summary>
 
 ```go
 // QueryBasic returns the basic stat of a minecraft server.
@@ -106,25 +111,31 @@ basicStat, err := query.QueryBasic("localhost", 25565)
 // QueryBasic returns the full stat of a minecraft server.
 fullStat, err := query.QueryFull("localhost", 25565)
 ```
+</details>
 
-### Rcon
+<details>
+<summary>Rcon</summary>
 
 ```go
 // Rcon executes a command on a minecraft server, and returns the response of that command.
 response, err := rcon.Rcon("localhost", 25575, "password", "command")
 ```
+</details>
 
-### Bedrock ping
+<details>
+<summary>Bedrock ping</summary>
 
 ```go
 // Ping returns the server infos, and latency of a minecraft bedrock server.
 response, err := bedrock.Ping("localhost", 19132)
 ```
+</details>
 
 
 ## How to use (full control way) ?
 
-### Ping
+<details>
+<summary>Ping</summary>
 
 ```go
 pingclient := ping.NewClient("localhost", 25565)
@@ -159,8 +170,10 @@ infos, latency, err := legacypingclient.Ping1_6_4()
 // Disconnect closes the connection
 err = legacypingclient.Disconnect()
 ```
+</details>
 
-### Query
+<details>
+<summary>Query</summary>
 
 ```go
 queryclient := query.NewClient("localhost", 25565)
@@ -180,8 +193,10 @@ fs, err := queryclient.FullStat(challengeToken)
 // Disconnect closes the connection
 queryclient.Disconnect()
 ```
+</details>
 
-### Rcon
+<details>
+<summary>Rcon</summary>
 
 ```go
 rconclient := rcon.NewClient("localhost", 25575)
@@ -200,8 +215,10 @@ res, err := rconclient.Command("playerlist")
 // Disconnect closes the connection
 rconclient.Disconnect()
 ```
+</details>
 
-### Bedrock Ping
+<details>
+<summary>Bedrock Ping</summary>
 
 ```go
 pingclient := ping.NewClient("localhost", 25565)
@@ -216,3 +233,4 @@ pong, latency, err := pingclient.UnconnctedPing()
 // Disconnect closes the connection
 err = pingclient.Disconnect()
 ```
+<details>
