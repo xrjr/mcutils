@@ -31,6 +31,12 @@ func main() {
 
 	if len(flag.Args()) < 1 {
 		fmt.Fprintf(os.Stderr, "Usage : %s [--json] <command> <params...>\n", os.Args[0])
+
+		fmt.Fprint(os.Stderr, "Existing commands are :\n")
+		for k := range commands {
+			fmt.Fprintf(os.Stderr, " - %s\n", k)
+		}
+
 		os.Exit(1)
 		return
 	}

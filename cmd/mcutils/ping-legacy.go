@@ -37,7 +37,7 @@ func (cmd PingLegacyCommand) Execute(params []string, jsonFormat bool) bool {
 	}
 
 	if jsonFormat {
-		cmd.jsonOutput(infos, latency)
+		return cmd.jsonOutput(infos, latency)
 	}
 
 	return cmd.basicOutput(infos, latency)
