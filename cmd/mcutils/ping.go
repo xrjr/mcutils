@@ -57,17 +57,17 @@ func (PingCommand) basicOutput(properties ping.JSON, latency int) bool {
 }
 
 func (PingCommand) jsonOutput(properties ping.JSON, latency int) bool {
-	type jsonResponse struct {
+	res := struct {
 		Properties ping.JSON `json:"properties"`
 		Latency    int       `json:"latency"`
-	}
-
-	res := jsonResponse{
+	}{
 		Properties: properties,
 		Latency:    latency,
 	}
 
-	err := json.NewEncoder(os.Stdout).Encode(res)
+	encoder := json.NewEncoder(os.Stdout)
+	encoder.SetIndent("", "\t")
+	err := encoder.Encode(res)
 	if err != nil {
 		return false
 	}
