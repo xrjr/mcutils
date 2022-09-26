@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -22,7 +23,7 @@ func (PingBedrockCommand) Usage() string {
 	return "<hostname> <port>"
 }
 
-func (PingBedrockCommand) Execute(params []string, jsonFormat bool) bool {
+func (cmd PingBedrockCommand) Execute(params []string, jsonFormat bool) bool {
 	port, err := strconv.Atoi(params[1])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Invalid port.")
@@ -35,6 +36,14 @@ func (PingBedrockCommand) Execute(params []string, jsonFormat bool) bool {
 		return false
 	}
 
+	if jsonFormat {
+		return cmd.jsonOutput(pong, latency)
+	}
+
+	return cmd.jsonOutput(pong, latency)
+}
+
+func (PingBedrockCommand) basicOutput(pong bedrock.UnconnectedPong, latency int) bool {
 	fmt.Printf("Game Name : %s\n", pong.GameName)
 	fmt.Printf("MOTD : %s\n", pong.MOTD)
 	fmt.Printf("Protocol Version : %d\n", pong.ProtocolVersion)
@@ -48,5 +57,25 @@ func (PingBedrockCommand) Execute(params []string, jsonFormat bool) bool {
 	fmt.Printf("IPv4 Port : %d\n", pong.IPv4Port)
 	fmt.Printf("IPv6 Port : %d\n", pong.IPv6Port)
 	fmt.Printf("Latency : %d ms\n", latency)
+
+	return true
+}
+
+func (PingBedrockCommand) jsonOutput(pong bedrock.UnconnectedPong, latency int) bool {
+	res := struct {
+		bedrock.UnconnectedPong
+		Latency int `json:"latency"`
+	}{
+		UnconnectedPong: pong,
+		Latency:         latency,
+	}
+
+	encoder := json.NewEncoder(os.Stdout)
+	encoder.SetIndent("", "\t")
+	err := encoder.Encode(res)
+	if err != nil {
+		return false
+	}
+
 	return true
 }
