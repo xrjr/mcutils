@@ -42,7 +42,7 @@ func (PingCommand) Execute(params []string, jsonFormat bool) bool {
 		return false
 	}
 
-	fmt.Println(string(jsonProperties))
+	fmt.Println("Properties :", string(jsonProperties))
 	fmt.Printf("Latency : %d ms\n", latency)
 	return true
 }
