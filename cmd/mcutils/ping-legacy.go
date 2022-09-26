@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -22,7 +23,7 @@ func (PingLegacyCommand) Usage() string {
 	return "<hostname> <port>"
 }
 
-func (PingLegacyCommand) Execute(params []string) bool {
+func (cmd PingLegacyCommand) Execute(params []string, jsonFormat bool) bool {
 	port, err := strconv.Atoi(params[1])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Invalid port.")
@@ -35,11 +36,39 @@ func (PingLegacyCommand) Execute(params []string) bool {
 		return false
 	}
 
+	if jsonFormat {
+		return cmd.jsonOutput(infos, latency)
+	}
+
+	return cmd.basicOutput(infos, latency)
+}
+
+func (PingLegacyCommand) basicOutput(infos ping.LegacyPingInfos, latency int) bool {
 	fmt.Printf("Protocol Version : %d\n", infos.ProtocolVersion)
 	fmt.Printf("Minecraft Version : %s\n", infos.MinecraftVersion)
 	fmt.Printf("MOTD : %s\n", infos.MOTD)
 	fmt.Printf("Online Players : %d\n", infos.OnlinePlayers)
 	fmt.Printf("Max Players : %d\n", infos.MaxPlayers)
 	fmt.Printf("Latency : %d ms\n", latency)
+
+	return true
+}
+
+func (PingLegacyCommand) jsonOutput(infos ping.LegacyPingInfos, latency int) bool {
+	res := struct {
+		ping.LegacyPingInfos
+		Latency int `json:"latency"`
+	}{
+		LegacyPingInfos: infos,
+		Latency:         latency,
+	}
+
+	encoder := json.NewEncoder(os.Stdout)
+	encoder.SetIndent("", "\t")
+	err := encoder.Encode(res)
+	if err != nil {
+		return false
+	}
+
 	return true
 }

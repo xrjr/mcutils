@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -22,7 +23,7 @@ func (RconCommand) Usage() string {
 	return "<hostname> <port> <password> <command>"
 }
 
-func (RconCommand) Execute(params []string) bool {
+func (cmd RconCommand) Execute(params []string, jsonFormat bool) bool {
 	port, err := strconv.Atoi(params[1])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Invalid port.")
@@ -35,6 +36,32 @@ func (RconCommand) Execute(params []string) bool {
 		return false
 	}
 
+	if jsonFormat {
+		return cmd.jsonOutput(response)
+	}
+
+	return cmd.basicOutput(response)
+}
+
+func (RconCommand) basicOutput(response string) bool {
 	fmt.Println(response)
+
+	return true
+}
+
+func (RconCommand) jsonOutput(response string) bool {
+	res := struct {
+		Response string `json:"response"`
+	}{
+		Response: response,
+	}
+
+	encoder := json.NewEncoder(os.Stdout)
+	encoder.SetIndent("", "\t")
+	err := encoder.Encode(res)
+	if err != nil {
+		return false
+	}
+
 	return true
 }

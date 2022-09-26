@@ -47,7 +47,7 @@ This project has no dependency.
 ### Install
 
 ```shell
-go install github.com/xrjr/mcutils/cmd/mcutils@latest
+go install -ldflags="-w -s" github.com/xrjr/mcutils/cmd/mcutils@latest
 ```
 
 ### Usage
@@ -63,8 +63,11 @@ $ mcutils ping-legacy-1.6.4 <hostname> <port>
 Same as ping-legacy, but uses 1.6+ SLP protocol
 Example : mcutils ping localhost 25565
 
-$ mcutils query <basic|full> <hostname> <port>
-Example : mcutils query basic localhost 25565
+$ mcutils query-basic <hostname> <port>
+Example : mcutils query-basic localhost 25565
+
+$ mcutils query-full <hostname> <port>
+Example : mcutils query-full localhost 25565
 
 $ mcutils rcon <hostname> <port> <password> <command>
 Example : mcutils rcon localhost 25575 mypassword "say hello"
