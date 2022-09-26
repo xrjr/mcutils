@@ -24,13 +24,13 @@ func (QueryFullCommand) Usage() string {
 }
 
 func (cmd QueryFullCommand) Execute(params []string, jsonFormat bool) bool {
-	port, err := strconv.Atoi(params[2])
+	port, err := strconv.Atoi(params[1])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Invalid port.")
 		return false
 	}
 
-	fs, err := query.QueryFull(params[1], port)
+	fs, err := query.QueryFull(params[0], port)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error : %s.\n", err.Error())
 		return false
