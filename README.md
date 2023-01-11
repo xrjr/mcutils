@@ -233,4 +233,4 @@ pong, latency, err := pingclient.UnconnctedPing()
 // Disconnect closes the connection
 err = pingclient.Disconnect()
 ```
-<details>
+</details>
