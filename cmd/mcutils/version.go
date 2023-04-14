@@ -56,5 +56,5 @@ func (VersionCommand) jsonOutput(version string) bool {
 
 func version() string {
 	bi, _ := debug.ReadBuildInfo()
-	return "mcutils " + bi.Main.Version + " " + runtime.GOOS + "/" + runtime.GOARCH + " " + bi.GoVersion
+	return "mcutils " + bi.Main.Version + " " + runtime.GOOS + "/" + runtime.GOARCH
 }
