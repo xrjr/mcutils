@@ -57,8 +57,8 @@ func (RconCommand) jsonOutput(response string) bool {
 	}
 
 	encoder := json.NewEncoder(os.Stdout)
-	encoder.SetIndent("", "\t")
 	err := encoder.Encode(res)
+
 	if err != nil {
 		return false
 	}

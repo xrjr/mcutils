@@ -63,8 +63,8 @@ func (QueryFullCommand) basicOutput(fs query.FullStat) bool {
 
 func (QueryFullCommand) jsonOutput(fs query.FullStat) bool {
 	encoder := json.NewEncoder(os.Stdout)
-	encoder.SetIndent("", "\t")
 	err := encoder.Encode(fs)
+
 	if err != nil {
 		return false
 	}

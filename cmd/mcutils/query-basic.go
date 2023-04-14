@@ -57,8 +57,8 @@ func (QueryBasicCommand) basicOutput(bs query.BasicStat) bool {
 
 func (QueryBasicCommand) jsonOutput(bs query.BasicStat) bool {
 	encoder := json.NewEncoder(os.Stdout)
-	encoder.SetIndent("", "\t")
 	err := encoder.Encode(bs)
+
 	if err != nil {
 		return false
 	}

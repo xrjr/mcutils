@@ -71,8 +71,8 @@ func (PingBedrockCommand) jsonOutput(pong bedrock.UnconnectedPong, latency int) 
 	}
 
 	encoder := json.NewEncoder(os.Stdout)
-	encoder.SetIndent("", "\t")
 	err := encoder.Encode(res)
+
 	if err != nil {
 		return false
 	}
