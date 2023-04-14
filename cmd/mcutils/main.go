@@ -45,11 +45,7 @@ func main() {
 	command, ok := commands[flag.Arg(0)]
 
 	if !ok {
-		fmt.Fprintf(os.Stderr, "Unknown command %s. Existing commands are :\n", os.Args[1])
-
-		for k := range commands {
-			fmt.Fprintf(os.Stderr, " - %s\n", k)
-		}
+		fmt.Fprintf(os.Stderr, "Unknown command %s. Run '%s help' to see existing commands.\n", os.Args[1])
 
 		os.Exit(1)
 		return

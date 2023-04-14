@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 	"runtime"
 	"runtime/debug"
 )
@@ -23,38 +21,12 @@ func (VersionCommand) Usage() string {
 }
 
 func (cmd VersionCommand) Execute(_ []string, jsonFormat bool) bool {
-
-	if jsonFormat {
-		return cmd.jsonOutput(version())
-	}
-
-	return cmd.basicOutput(version())
+	return cmd.basicOutput()
 }
 
-func (VersionCommand) basicOutput(version string) bool {
-	fmt.Println("Version :", version)
-
-	return true
-}
-
-func (VersionCommand) jsonOutput(version string) bool {
-	res := struct {
-		Version string `json:"version"`
-	}{
-		Version: version,
-	}
-
-	encoder := json.NewEncoder(os.Stdout)
-	err := encoder.Encode(res)
-
-	if err != nil {
-		return false
-	}
-
-	return true
-}
-
-func version() string {
+func (VersionCommand) basicOutput() bool {
 	bi, _ := debug.ReadBuildInfo()
-	return "mcutils " + bi.Main.Version + " " + runtime.GOOS + "/" + runtime.GOARCH
+	fmt.Printf("mcutils %s %s/%s\n", bi.Main.Version, runtime.GOOS, runtime.GOARCH)
+
+	return true
 }
