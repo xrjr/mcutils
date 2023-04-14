@@ -45,7 +45,7 @@ func main() {
 	command, ok := commands[flag.Arg(0)]
 
 	if !ok {
-		fmt.Fprintf(os.Stderr, "Unknown command %s. Run '%s help' to see existing commands.\n", os.Args[1])
+		fmt.Fprintf(os.Stderr, "Unknown command %s. Run '%s help' to see existing commands.\n", flag.Arg(0), os.Args[0])
 
 		os.Exit(1)
 		return
