@@ -56,26 +56,26 @@ go install -ldflags="-w -s" github.com/xrjr/mcutils/cmd/mcutils@latest
 <summary>Show usage</summary>
 
 ```shell
-$ mcutils ping <hostname> <port>
+$ mcutils [--json] ping <hostname> <port>
 Example : mcutils ping localhost 25565
 
-$ mcutils ping-legacy <hostname> <port>
+$ mcutils [--json] ping-legacy <hostname> <port>
 Example : mcutils ping localhost 25565
 
-$ mcutils ping-legacy-1.6.4 <hostname> <port>
+$ mcutils [--json] ping-legacy-1.6.4 <hostname> <port>
 Same as ping-legacy, but uses 1.6+ SLP protocol
 Example : mcutils ping localhost 25565
 
-$ mcutils query-basic <hostname> <port>
+$ mcutils [--json] query-basic <hostname> <port>
 Example : mcutils query-basic localhost 25565
 
-$ mcutils query-full <hostname> <port>
+$ mcutils [--json] query-full <hostname> <port>
 Example : mcutils query-full localhost 25565
 
-$ mcutils rcon <hostname> <port> <password> <command>
+$ mcutils [--json] rcon <hostname> <port> <password> <command>
 Example : mcutils rcon localhost 25575 mypassword "say hello"
 
-$ mcutils ping-bedrock <hostname> <port>
+$ mcutils [--json] ping-bedrock <hostname> <port>
 Example : mcutils ping-bedrock localhost 19132
 ```
 </details>
