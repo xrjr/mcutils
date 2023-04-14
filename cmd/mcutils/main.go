@@ -22,6 +22,7 @@ var (
 		"ping-legacy":       PingLegacyCommand{},
 		"ping-legacy-1.6.4": PingLegacy1_6_4Command{},
 		"ping-bedrock":      PingBedrockCommand{},
+		"version":           VersionCommand{},
 	}
 )
 
