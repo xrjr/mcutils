@@ -21,10 +21,11 @@ type infosPlayers struct {
 
 // Infos represents usual informations contained in ping response.
 type Infos struct {
-	Version     infosVersion `json:"version"`
-	Players     infosPlayers `json:"players"`
-	Description string       `json:"description"`
-	Favicon     string       `json:"favicon"`
+	Version            infosVersion `json:"version"`
+	Players            infosPlayers `json:"players"`
+	Description        string       `json:"description"`
+	Favicon            string       `json:"favicon"`
+	EnforcesSecureChat bool         `json:"enforcesSecureChat"`
 }
 
 // Infos extracts informations from ping response properties (JSON), and put it into an Infos structure.
@@ -130,6 +131,14 @@ func (m *JSON) Infos() Infos {
 		faviconString, ok := favicon.(string)
 		if ok {
 			infos.Favicon = faviconString
+		}
+	}
+
+	enforcesSecureChat, ok := (*m)["enforcesSecureChat"]
+	if ok {
+		enforcesSecureChatBool, ok := enforcesSecureChat.(bool)
+		if ok {
+			infos.EnforcesSecureChat = enforcesSecureChatBool
 		}
 	}
 
