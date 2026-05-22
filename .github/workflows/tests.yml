@@ -44,6 +44,7 @@ jobs:
           - 1.5.2
           - 1.6.4
           - 1.7.10
+          - latest
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
@@ -54,4 +55,80 @@ jobs:
       - run: sleep 120
       - run: ./mcutils ping-legacy localhost 25565
       - run: docker stop test-minecraft-server
+  
+  vanilla-ping-legacy-1-6-4:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - 1.6.4
+          - 1.7.10
+          - latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: 1.26.3
+      - run: go build -ldflags="-w -s" ./cmd/mcutils
+      - run: docker run --rm -d -e EULA=true -p 25565:25565 -e VERSION=${{ matrix.version }} --name test-minecraft-server itzg/minecraft-server
+      - run: sleep 120
+      - run: ./mcutils ping-legacy-1.6.4 localhost 25565
+      - run: docker stop test-minecraft-server
+  
+  vanilla-ping-slp:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - 1.7.10
+          - latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: 1.26.3
+      - run: go build -ldflags="-w -s" ./cmd/mcutils
+      - run: docker run --rm -d -e EULA=true -p 25565:25565 -e VERSION=${{ matrix.version }} --name test-minecraft-server itzg/minecraft-server
+      - run: sleep 120
+      - run: ./mcutils ping localhost 25565
+      - run: docker stop test-minecraft-server
 
+  vanilla-query-basic:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - 1.2.5
+          - 1.6.4
+          - 1.7.10
+          - latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: 1.26.3
+      - run: go build -ldflags="-w -s" ./cmd/mcutils
+      - run: docker run --rm -d -e EULA=true -p 25565:25565 -e VERSION=${{ matrix.version }} -e ENABLE_QUERY=true --name test-minecraft-server itzg/minecraft-server
+      - run: sleep 120
+      - run: ./mcutils query-basic localhost 25565
+      - run: docker stop test-minecraft-server
+  
+  vanilla-query-full:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - 1.2.5
+          - 1.6.4
+          - 1.7.10
+          - latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: 1.26.3
+      - run: go build -ldflags="-w -s" ./cmd/mcutils
+      - run: docker run --rm -d -e EULA=true -p 25565:25565 -e VERSION=${{ matrix.version }} -e ENABLE_QUERY=true --name test-minecraft-server itzg/minecraft-server
+      - run: sleep 120
+      - run: ./mcutils query-full localhost 25565
+      - run: docker stop test-minecraft-server
