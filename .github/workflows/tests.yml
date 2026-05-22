@@ -132,3 +132,23 @@ jobs:
       - run: sleep 120
       - run: ./mcutils query-full localhost 25565
       - run: docker stop test-minecraft-server
+  
+  vanilla-rcon:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - 1.2.5
+          - 1.6.4
+          - 1.7.10
+          - latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: 1.26.3
+      - run: go build -ldflags="-w -s" ./cmd/mcutils
+      - run: docker run --rm -d -e EULA=true -p 25565:25565 -e VERSION=${{ matrix.version }} -e RCON_PASSWORD=password --name test-minecraft-server itzg/minecraft-server
+      - run: sleep 120
+      - run: ./mcutils rcon localhost 25575 password "say hello"
+      - run: docker stop test-minecraft-server
