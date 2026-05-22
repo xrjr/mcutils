@@ -32,7 +32,7 @@ func Rcon(hostname string, port int, password string, command string) (string, e
 		return "", nil
 	}
 
-	client.Disconnect()
+	err = client.Disconnect()
 	if err != nil {
 		return "", err
 	}
