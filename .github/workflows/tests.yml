@@ -2,6 +2,9 @@ name: tests
 
 on: push
 
+env:
+  go-version: stable
+
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
@@ -9,7 +12,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
-          go-version: 1.26.3
+          go-version: ${{ env.go-version }}
       - run: go test ./...
   
   cli-build-run:
@@ -18,7 +21,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
-          go-version: 1.26.3
+          go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
       - run: ./mcutils version
   
@@ -28,7 +31,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
-          go-version: 1.26.3
+          go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
       - run: ./mcutils version
       # pinging mc.hypixel.net as it is known to work only with SRV lookup enabled and should be up for a long time coming
@@ -49,10 +52,10 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
-          go-version: 1.26.3
+          go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
       - run: docker run --rm -d -e EULA=true -p 25565:25565 -e VERSION=${{ matrix.version }} --name test-minecraft-server itzg/minecraft-server
-      - run: sleep 60
+      - run: sleep 30
       - run: ./mcutils ping-legacy localhost 25565
       - run: docker stop test-minecraft-server
   
@@ -68,10 +71,10 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
-          go-version: 1.26.3
+          go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
       - run: docker run --rm -d -e EULA=true -p 25565:25565 -e VERSION=${{ matrix.version }} --name test-minecraft-server itzg/minecraft-server
-      - run: sleep 60
+      - run: sleep 30
       - run: ./mcutils ping-legacy-1.6.4 localhost 25565
       - run: docker stop test-minecraft-server
   
@@ -86,10 +89,10 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
-          go-version: 1.26.3
+          go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
       - run: docker run --rm -d -e EULA=true -p 25565:25565 -e VERSION=${{ matrix.version }} --name test-minecraft-server itzg/minecraft-server
-      - run: sleep 60
+      - run: sleep 30
       - run: ./mcutils ping localhost 25565
       - run: docker stop test-minecraft-server
 
@@ -106,10 +109,10 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
-          go-version: 1.26.3
+          go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
       - run: docker run --rm -d -e EULA=true -p 25565:25565/udp -e VERSION=${{ matrix.version }} -e ENABLE_QUERY=true --name test-minecraft-server itzg/minecraft-server
-      - run: sleep 60
+      - run: sleep 30
       - run: ./mcutils query-basic localhost 25565
       - run: docker stop test-minecraft-server
   
@@ -126,10 +129,10 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
-          go-version: 1.26.3
+          go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
       - run: docker run --rm -d -e EULA=true -p 25565:25565/udp -e VERSION=${{ matrix.version }} -e ENABLE_QUERY=true --name test-minecraft-server itzg/minecraft-server
-      - run: sleep 60
+      - run: sleep 30
       - run: ./mcutils query-full localhost 25565
       - run: docker stop test-minecraft-server
   
@@ -146,10 +149,10 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
-          go-version: 1.26.3
+          go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
       - run: docker run --rm -d -e EULA=true -p 25575:25575 -e VERSION=${{ matrix.version }} -e RCON_PASSWORD=password --name test-minecraft-server itzg/minecraft-server
-      - run: sleep 60
+      - run: sleep 30
       - run: ./mcutils rcon localhost 25575 password "say hello"
       - run: docker stop test-minecraft-server
   
@@ -163,9 +166,9 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
-          go-version: 1.26.3
+          go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
       - run: docker run --rm -d -e EULA=TRUE -e VERSION=${{ matrix.version }} -p 19132:19132/udp itzg/minecraft-bedrock-server
-      - run: sleep 60
-      - run: ./mcutils bedrock-ping localhost 19132
+      - run: sleep 30
+      - run: ./mcutils ping-bedrock localhost 19132
       - run: docker stop test-minecraft-server
