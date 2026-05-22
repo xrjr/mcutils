@@ -1,13 +1,57 @@
 name: tests
+
 on: push
+
 jobs:
-  test:
+  unit-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
         with:
-          go-version: 1.17.3
-      - run: go version
+          go-version: 1.26.3
       - run: go test ./...
-      - run: go build ./cmd/mcutils
+  
+  cli-build-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: 1.26.3
+      - run: go build -ldflags="-w -s" ./cmd/mcutils
+      - run: ./mcutils version
+  
+  srv-lookup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: 1.26.3
+      - run: go build -ldflags="-w -s" ./cmd/mcutils
+      - run: ./mcutils version
+      # pinging mc.hypixel.net as it is known to work only with SRV lookup enabled and should be up for a long time coming
+      - run: ./mcutils ping mc.hypixel.net 25565
+  
+  vanilla-ping-legacy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - 1.2.5
+          - 1.4.7
+          - 1.5.2
+          - 1.6.4
+          - 1.7.10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: 1.26.3
+      - run: go build -ldflags="-w -s" ./cmd/mcutils
+      - run: docker run --rm -d -e EULA=true -p 25565:25565 -e VERSION=${{ matrix.version }} --name test-minecraft-server itzg/minecraft-server
+      - run: sleep 10
+      - run: ./mcutils ping-legacy localhost 25565
+      - run: docker stop test-minecraft-server
+
