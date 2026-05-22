@@ -167,5 +167,5 @@ jobs:
       - run: go build -ldflags="-w -s" ./cmd/mcutils
       - run: docker run --rm -d -e EULA=TRUE -e VERSION=${{ matrix.version }} -p 19132:19132/udp itzg/minecraft-bedrock-server
       - run: sleep 60
-      - run: ./mcutils rcon localhost 25575 password "say hello"
+      - run: ./mcutils bedrock-ping localhost 19132
       - run: docker stop test-minecraft-server
