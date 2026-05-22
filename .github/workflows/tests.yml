@@ -183,7 +183,7 @@ jobs:
         with:
           go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
-      - run: docker run --rm -d -e EULA=TRUE -e VERSION=${{ matrix.version }} -p 19132:19132/udp itzg/minecraft-bedrock-server
+      - run: docker run --rm -d -e EULA=TRUE -e VERSION=${{ matrix.version }} -p 19132:19132/udp --name test-minecraft-server itzg/minecraft-bedrock-server
       - run: sleep 60
       - run: ./mcutils ping-bedrock localhost 19132
       - run: docker stop test-minecraft-server
