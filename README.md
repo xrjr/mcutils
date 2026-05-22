@@ -228,7 +228,7 @@ err := pingclient.Connect()
 
 
 // UnconnectedPing is a request that retrieve server informations and latency
-pong, latency, err := pingclient.UnconnctedPing()
+pong, latency, err := pingclient.UnconnectedPing()
 
 // Disconnect closes the connection
 err = pingclient.Disconnect()
