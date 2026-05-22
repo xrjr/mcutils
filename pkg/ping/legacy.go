@@ -3,6 +3,7 @@ package ping
 import (
 	"bytes"
 	"encoding/binary"
+	"net"
 	"strconv"
 	"time"
 	"unicode/utf16"
@@ -184,11 +185,17 @@ type PingClientLegacy struct {
 
 // NewClientLegacy returns a well-formed *LegacyPingClient.
 func NewClientLegacy(hostname string, port int) *PingClientLegacy {
+	var skipSRVLookup = false
+
+	if hostname == "localhost" && net.ParseIP(hostname) != nil {
+		skipSRVLookup = true
+	}
+
 	return &PingClientLegacy{
 		hostname: hostname,
 		port:     port,
 
-		SkipSRVLookup: false,
+		SkipSRVLookup: skipSRVLookup,
 		DialTimeout:   5 * time.Second,
 		ReadTimeout:   5 * time.Second,
 	}

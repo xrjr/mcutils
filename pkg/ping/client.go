@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"net"
 	"time"
 
 	"github.com/xrjr/mcutils/pkg/networking"
@@ -136,11 +137,17 @@ type PingClient struct {
 
 // NewClient returns a well-formed *PingClient.
 func NewClient(hostname string, port int) *PingClient {
+	var skipSRVLookup = false
+
+	if hostname == "localhost" && net.ParseIP(hostname) != nil {
+		skipSRVLookup = true
+	}
+
 	return &PingClient{
 		hostname: hostname,
 		port:     port,
 
-		SkipSRVLookup: false,
+		SkipSRVLookup: skipSRVLookup,
 		DialTimeout:   5 * time.Second,
 		ReadTimeout:   5 * time.Second,
 	}

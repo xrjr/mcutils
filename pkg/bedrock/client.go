@@ -161,10 +161,8 @@ type PingClient struct {
 	ClientGUID uint64
 
 	// options
-	SkipSRVLookup                bool
-	ForceUDPProtocolForSRVLookup bool
-	DialTimeout                  time.Duration
-	ReadTimeout                  time.Duration
+	DialTimeout time.Duration
+	ReadTimeout time.Duration
 }
 
 // NewClient returns a well-formed *PingClient.
@@ -175,10 +173,8 @@ func NewClient(hostname string, port int) *PingClient {
 		port:       port,
 		ClientGUID: uint64(rand.Int()),
 
-		SkipSRVLookup:                false,
-		ForceUDPProtocolForSRVLookup: false,
-		DialTimeout:                  5 * time.Second,
-		ReadTimeout:                  5 * time.Second,
+		DialTimeout: 5 * time.Second,
+		ReadTimeout: 5 * time.Second,
 	}
 }
 
@@ -189,9 +185,8 @@ func (client *PingClient) Connect() error {
 	}
 
 	conn, err := networking.DialUDP(client.hostname, client.port, networking.DialUDPOptions{
-		SkipSRVLookup:                client.SkipSRVLookup,
-		ForceUDPProtocolForSRVLookup: client.ForceUDPProtocolForSRVLookup,
-		DialTimeout:                  client.DialTimeout,
+		SkipSRVLookup: true, // there is no SRV lookup mechanism for bedrock servers
+		DialTimeout:   client.DialTimeout,
 	})
 	if err != nil {
 		return err

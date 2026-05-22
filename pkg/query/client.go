@@ -2,6 +2,7 @@ package query
 
 import (
 	"math/rand"
+	"net"
 	"strconv"
 	"time"
 
@@ -248,11 +249,17 @@ type QueryClient struct {
 
 // NewClient returns a well-formed *QueryClient.
 func NewClient(hostname string, port int) *QueryClient {
+	var skipSRVLookup = false
+
+	if hostname == "localhost" && net.ParseIP(hostname) != nil {
+		skipSRVLookup = true
+	}
+
 	return &QueryClient{
 		hostname: hostname,
 		port:     port,
 
-		SkipSRVLookup:                false,
+		SkipSRVLookup:                skipSRVLookup,
 		ForceUDPProtocolForSRVLookup: false,
 		DialTimeout:                  5 * time.Second,
 		ReadTimeout:                  5 * time.Second,
