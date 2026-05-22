@@ -16,7 +16,7 @@
 
 All protocols are implemented in Go, without any external dependency. All protocols should be supported on any platform/architecture as long as Go can compile them.
 
-All protocols have been implemented using [wiki.vg](https://wiki.vg/). All of them are 100% compliant with the standard described there.
+All protocols have been implemented using [minecraft.wiki](https://minecraft.wiki). All of them are 100% compliant with the standard described there.
 
 This project also contains an helper in communication with tcp/udp, called `pkg/networking`.
 
@@ -24,13 +24,13 @@ This project has no dependency.
 
 ### Supported protocols
 
-- [Ping](https://wiki.vg/Server_List_Ping) (Server List Ping)
+- [Ping](https://minecraft.wiki/w/Java_Edition_protocol/Server_List_Ping) (Server List Ping)
 
-- [Query](https://wiki.vg/Query)
+- [Query](https://minecraft.wiki/w/Query)
 
-- [Rcon](https://wiki.vg/Rcon)
+- [Rcon](https://minecraft.wiki/w/RCON)
 
-- [Bedrock Ping](https://wiki.vg/Raknet_Protocol)
+- [Bedrock Ping](https://minecraft.wiki/w/RakNet)
 
 
 

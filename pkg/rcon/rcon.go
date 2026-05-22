@@ -1,5 +1,5 @@
 // rcon package implements the minecraft rcon protocol (based on the source rcon protocol).
-// This package is strictly compliant with the following documentation : https://wiki.vg/RCON.
+// This package is strictly compliant with the following documentation : https://minecraft.wiki/w/RCON.
 package rcon
 
 import "errors"
