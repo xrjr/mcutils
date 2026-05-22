@@ -46,7 +46,7 @@ func DialTCP(hostname string, port int, options DialTCPOptions) (*TCPConn, error
 	// - option is true
 	// - hostname is localhost
 	// - hostname is a textual IP address
-	if !options.SkipSRVLookup && hostname != "localhost" && net.ParseIP(hostname) != nil {
+	if !options.SkipSRVLookup && hostname != "localhost" && net.ParseIP(hostname) == nil {
 		_, addrs, err := net.LookupSRV("minecraft", "tcp", hostname)
 		if err == nil && len(addrs) > 0 {
 			_hostname = addrs[0].Target
@@ -121,7 +121,7 @@ func DialUDP(hostname string, port int, options DialUDPOptions) (*UDPConn, error
 	// - option is true
 	// - hostname is localhost
 	// - hostname is a textual IP address
-	if !options.SkipSRVLookup && hostname != "localhost" && net.ParseIP(hostname) != nil {
+	if !options.SkipSRVLookup && hostname != "localhost" && net.ParseIP(hostname) == nil {
 		_, addrs, err := net.LookupSRV("minecraft", SRVLookupProtocol, hostname)
 		if err == nil && len(addrs) > 0 {
 			_hostname = addrs[0].Target

@@ -33,9 +33,24 @@ jobs:
         with:
           go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
-      - run: ./mcutils version
-      # pinging mc.hypixel.net as it is known to work only with SRV lookup enabled and should be up for a long time coming
-      - run: ./mcutils ping mc.hypixel.net 25565
+      - run: docker run --rm -d -e EULA=true -p 25565:25565 -e VERSION=latest --name test-minecraft-server itzg/minecraft-server
+      - run: |
+          sudo apt install dnsmasq -y
+
+          sudo systemctl stop systemd-resolved || true
+          sudo systemctl disable systemd-resolved || true
+          sleep 1
+
+          sudo rm -f /etc/resolv.conf
+          sudo tee /etc/dnsmasq.conf <<'EOL'
+          server=8.8.8.8
+          server=8.8.4.4
+          srv-host=_minecraft._tcp.xrjr.mcutils,localhost,25565,0,5
+          EOL
+      - run: echo "nameserver 127.0.0.1" | sudo tee /etc/resolv.conf
+      - run: sudo systemctl restart dnsmasq
+      - run: sleep 60
+      - run: ./mcutils ping xrjr.mcutils 25565
   
   vanilla-ping-legacy:
     runs-on: ubuntu-latest
@@ -55,7 +70,7 @@ jobs:
           go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
       - run: docker run --rm -d -e EULA=true -p 25565:25565 -e VERSION=${{ matrix.version }} --name test-minecraft-server itzg/minecraft-server
-      - run: sleep 30
+      - run: sleep 60
       - run: ./mcutils ping-legacy localhost 25565
       - run: docker stop test-minecraft-server
   
@@ -74,7 +89,7 @@ jobs:
           go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
       - run: docker run --rm -d -e EULA=true -p 25565:25565 -e VERSION=${{ matrix.version }} --name test-minecraft-server itzg/minecraft-server
-      - run: sleep 30
+      - run: sleep 60
       - run: ./mcutils ping-legacy-1.6.4 localhost 25565
       - run: docker stop test-minecraft-server
   
@@ -92,7 +107,7 @@ jobs:
           go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
       - run: docker run --rm -d -e EULA=true -p 25565:25565 -e VERSION=${{ matrix.version }} --name test-minecraft-server itzg/minecraft-server
-      - run: sleep 30
+      - run: sleep 60
       - run: ./mcutils ping localhost 25565
       - run: docker stop test-minecraft-server
 
@@ -112,7 +127,7 @@ jobs:
           go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
       - run: docker run --rm -d -e EULA=true -p 25565:25565/udp -e VERSION=${{ matrix.version }} -e ENABLE_QUERY=true --name test-minecraft-server itzg/minecraft-server
-      - run: sleep 30
+      - run: sleep 60
       - run: ./mcutils query-basic localhost 25565
       - run: docker stop test-minecraft-server
   
@@ -132,7 +147,7 @@ jobs:
           go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
       - run: docker run --rm -d -e EULA=true -p 25565:25565/udp -e VERSION=${{ matrix.version }} -e ENABLE_QUERY=true --name test-minecraft-server itzg/minecraft-server
-      - run: sleep 30
+      - run: sleep 60
       - run: ./mcutils query-full localhost 25565
       - run: docker stop test-minecraft-server
   
@@ -152,7 +167,7 @@ jobs:
           go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
       - run: docker run --rm -d -e EULA=true -p 25575:25575 -e VERSION=${{ matrix.version }} -e RCON_PASSWORD=password --name test-minecraft-server itzg/minecraft-server
-      - run: sleep 30
+      - run: sleep 60
       - run: ./mcutils rcon localhost 25575 password "say hello"
       - run: docker stop test-minecraft-server
   
@@ -169,6 +184,6 @@ jobs:
           go-version: ${{ env.go-version }}
       - run: go build -ldflags="-w -s" ./cmd/mcutils
       - run: docker run --rm -d -e EULA=TRUE -e VERSION=${{ matrix.version }} -p 19132:19132/udp itzg/minecraft-bedrock-server
-      - run: sleep 30
+      - run: sleep 60
       - run: ./mcutils ping-bedrock localhost 19132
       - run: docker stop test-minecraft-server
