@@ -254,5 +254,5 @@ As we've seen in the client customization part, you can disbale SRV resolving fo
 
 For clients that rely on UDP streams (currently query and bedrock), you can also change the protocol for the SRV lookup (default is `_minecraft._tcp`, you can make it `_minecraft._udp`). See `ForceUDPProtocolForSRVLookup` option. Please note that, again, this is not standard at all.
 
-SRV resolution is automatically skipped at client creation if the provided hostname either is `localhost` or a textual IP. While this is how most minecraft client works for optimization purposes, you can still re-enable it right after client creation.
+SRV resolution is automatically skipped at client creation if the provided hostname either is `localhost` or a textual IP. While this is how most minecraft client work for optimization purposes, you can still re-enable it right after client creation.
 </details>
