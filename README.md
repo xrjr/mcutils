@@ -10,17 +10,15 @@
 
 ## Informations
 
-![test workflow](https://github.com/xrjr/mcutils/actions/workflows/tests.yml/badge.svg)
+[![Go Reference](https://pkg.go.dev/badge/github.com/xrjr/mcutils.svg)](https://pkg.go.dev/github.com/xrjr/mcutils) ![test workflow](https://github.com/xrjr/mcutils/actions/workflows/tests.yml/badge.svg)
 
 ### General
 
-All protocols are implemented in Go, without any external dependency. All protocols should be supported on any platform/architecture as long as Go can compile them.
+All protocols are implemented in pure Go, without any external dependency besides stdlib. All protocols should be supported on any platform/architecture as long as Go can compile them.
 
 All protocols have been implemented using [minecraft.wiki](https://minecraft.wiki). All of them are 100% compliant with the standard described there.
 
 This project also contains an helper in communication with tcp/udp, called `pkg/networking`.
-
-This project has no dependency.
 
 ### Supported protocols
 
@@ -34,7 +32,7 @@ This project has no dependency.
 
 
 
-> All protocols implementations support SRV record resolving. 
+> All relevant protocols implementations support SRV record resolving.
 >
 > Rcon implementation supports fragmented response packets.
 >
@@ -232,5 +230,17 @@ pong, latency, err := pingclient.UnconnectedPing()
 
 // Disconnect closes the connection
 err = pingclient.Disconnect()
+```
+</details>
+
+<details>
+<summary>Customize client parameters</summary>
+
+Each protocol client is created with reasonable defaults, but you may need to adapt them to your very own requirements. For example, you may want to customize timeouts or skip the SRV lookup. Explore exported fields of clients to see more.
+
+```go
+client.SkipSRVLookup = true
+client.DialTimeout = 10 * time.Second
+client.ReadTimeout = 500 * time.Milisecond
 ```
 </details>
