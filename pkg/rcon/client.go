@@ -178,7 +178,7 @@ type RCONClient struct {
 func NewClient(hostname string, port int) *RCONClient {
 	var skipSRVLookup = false
 
-	if hostname == "localhost" && net.ParseIP(hostname) != nil {
+	if hostname == "localhost" || net.ParseIP(hostname) != nil {
 		skipSRVLookup = true
 	}
 

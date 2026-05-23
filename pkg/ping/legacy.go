@@ -187,7 +187,7 @@ type PingClientLegacy struct {
 func NewClientLegacy(hostname string, port int) *PingClientLegacy {
 	var skipSRVLookup = false
 
-	if hostname == "localhost" && net.ParseIP(hostname) != nil {
+	if hostname == "localhost" || net.ParseIP(hostname) != nil {
 		skipSRVLookup = true
 	}
 
