@@ -107,14 +107,14 @@ type DialUDPOptions struct {
 func DialUDP(hostname string, port int, options DialUDPOptions) (*UDPConn, error) {
 	var _hostname string = hostname
 	var _port int = port
-	var SRVLookupProtocol string = "tcp"
+	var protocol string = "tcp"
 
 	if options.ForceUDPProtocolForSRVLookup {
-		SRVLookupProtocol = "udp"
+		protocol = "udp"
 	}
 
 	if !options.SkipSRVLookup {
-		_, addrs, err := net.LookupSRV("minecraft", SRVLookupProtocol, hostname)
+		_, addrs, err := net.LookupSRV("minecraft", protocol, hostname)
 		if err == nil && len(addrs) > 0 {
 			_hostname = addrs[0].Target
 			_port = int(addrs[0].Port)

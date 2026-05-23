@@ -32,7 +32,7 @@ This project also contains an helper in communication with tcp/udp, called `pkg/
 
 
 
-> All relevant protocols implementations support SRV record resolving.
+> All protocols implementations support SRV record resolving.
 >
 > Rcon implementation supports fragmented response packets.
 >
@@ -243,4 +243,16 @@ client.SkipSRVLookup = true
 client.DialTimeout = 10 * time.Second
 client.ReadTimeout = 500 * time.Milisecond
 ```
+</details>
+
+<details>
+<summary>Note on SRV resolving</summary>
+
+All clients are created with a default option that performs SRV resolving, besides bedrock one. This is because there is no such SRV records mechanism on bedrock servers.
+
+As we've seen in the client customization part, you can disbale SRV resolving for clients that perform it by default, and you can even enable it for bedrock one. In this last case, it would be using the same service and protocol as the java edition, but please note that it is not standard.
+
+For clients that rely on UDP streams (currently query and bedrock), you can also change the protocol for the SRV lookup (default is `_minecraft._tcp`, you can make it `_minecraft._udp`). See `ForceUDPProtocolForSRVLookup` option. Please note that, again, this is not standard at all.
+
+SRV resolution is automatically skipped at client creation if the provided hostname either is `localhost` or a textual IP. While this is how most minecraft client works for optimization purposes, you can still re-enable it right after client creation.
 </details>
