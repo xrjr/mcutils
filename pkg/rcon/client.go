@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"net"
 	"time"
 
 	"github.com/xrjr/mcutils/pkg/networking"
@@ -175,12 +176,18 @@ type RCONClient struct {
 
 // NewClient returns a well-formed *RCONClient.
 func NewClient(hostname string, port int) *RCONClient {
+	var skipSRVLookup = false
+
+	if hostname == "localhost" || net.ParseIP(hostname) != nil {
+		skipSRVLookup = true
+	}
+
 	return &RCONClient{
 		hostname:      hostname,
 		port:          port,
 		authenticated: false,
 
-		SkipSRVLookup: false,
+		SkipSRVLookup: skipSRVLookup,
 		DialTimeout:   5 * time.Second,
 		ReadTimeout:   5 * time.Second,
 	}

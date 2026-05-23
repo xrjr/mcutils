@@ -10,31 +10,29 @@
 
 ## Informations
 
-![test workflow](https://github.com/xrjr/mcutils/actions/workflows/tests.yml/badge.svg)
+[![Go Reference](https://pkg.go.dev/badge/github.com/xrjr/mcutils.svg)](https://pkg.go.dev/github.com/xrjr/mcutils) ![test workflow](https://github.com/xrjr/mcutils/actions/workflows/tests.yml/badge.svg)
 
 ### General
 
-All protocols are implemented in Go, without any external dependency. All protocols should be supported on any platform/architecture as long as Go can compile them.
+All protocols are implemented in pure Go, without any external dependency besides stdlib. All protocols should be supported on any platform/architecture as long as Go can compile them.
 
-All protocols have been implemented using [wiki.vg](https://wiki.vg/). All of them are 100% compliant with the standard described there.
+All protocols have been implemented using [minecraft.wiki](https://minecraft.wiki). All of them are 100% compliant with the standard described there.
 
 This project also contains an helper in communication with tcp/udp, called `pkg/networking`.
 
-This project has no dependency.
-
 ### Supported protocols
 
-- [Ping](https://wiki.vg/Server_List_Ping) (Server List Ping)
+- [Ping](https://minecraft.wiki/w/Java_Edition_protocol/Server_List_Ping) (Server List Ping)
 
-- [Query](https://wiki.vg/Query)
+- [Query](https://minecraft.wiki/w/Query)
 
-- [Rcon](https://wiki.vg/Rcon)
+- [Rcon](https://minecraft.wiki/w/RCON)
 
-- [Bedrock Ping](https://wiki.vg/Raknet_Protocol)
+- [Bedrock Ping](https://minecraft.wiki/w/RakNet)
 
 
 
-> All protocols implementations support SRV record resolving. 
+> All protocols implementations support SRV record resolving.
 >
 > Rcon implementation supports fragmented response packets.
 >
@@ -228,9 +226,33 @@ err := pingclient.Connect()
 
 
 // UnconnectedPing is a request that retrieve server informations and latency
-pong, latency, err := pingclient.UnconnctedPing()
+pong, latency, err := pingclient.UnconnectedPing()
 
 // Disconnect closes the connection
 err = pingclient.Disconnect()
 ```
+</details>
+
+<details>
+<summary>Customize client parameters</summary>
+
+Each protocol client is created with reasonable defaults, but you may need to adapt them to your very own requirements. For example, you may want to customize timeouts or skip the SRV lookup. Explore exported fields of clients to see more.
+
+```go
+client.SkipSRVLookup = true
+client.DialTimeout = 10 * time.Second
+client.ReadTimeout = 500 * time.Milisecond
+```
+</details>
+
+<details>
+<summary>Note on SRV resolving</summary>
+
+All clients are created with a default option that performs SRV resolving, besides bedrock one. This is because there is no such SRV records mechanism on bedrock servers.
+
+As we've seen in the client customization part, you can disbale SRV resolving for clients that perform it by default, and you can even enable it for bedrock one. In this last case, it would be using the same service and protocol as the java edition, but please note that it is not standard.
+
+For clients that rely on UDP streams (currently query and bedrock), you can also change the protocol for the SRV lookup (default is `_minecraft._tcp`, you can make it `_minecraft._udp`). See `ForceUDPProtocolForSRVLookup` option. Please note that, again, this is not standard at all.
+
+SRV resolution is automatically skipped at client creation if the provided hostname either is `localhost` or a textual IP. While this is how most minecraft client work for optimization purposes, you can still re-enable it right after client creation.
 </details>

@@ -3,6 +3,7 @@ package ping
 import (
 	"bytes"
 	"encoding/binary"
+	"net"
 	"strconv"
 	"time"
 	"unicode/utf16"
@@ -184,11 +185,17 @@ type PingClientLegacy struct {
 
 // NewClientLegacy returns a well-formed *LegacyPingClient.
 func NewClientLegacy(hostname string, port int) *PingClientLegacy {
+	var skipSRVLookup = false
+
+	if hostname == "localhost" || net.ParseIP(hostname) != nil {
+		skipSRVLookup = true
+	}
+
 	return &PingClientLegacy{
 		hostname: hostname,
 		port:     port,
 
-		SkipSRVLookup: false,
+		SkipSRVLookup: skipSRVLookup,
 		DialTimeout:   5 * time.Second,
 		ReadTimeout:   5 * time.Second,
 	}
@@ -214,12 +221,13 @@ func (client *PingClientLegacy) Connect() error {
 
 // Ping sends a legacy ping request to the server, and returns various informations about the server, and the latency in ms.
 // If the minecraft server has a version <= 1.3, ProtocolNumber and MinecraftVersion are not set.
+// Note that legacy ping should be working on most servers that don't require host to be set, but it is notoriously slow on 1.6.x vanilla servers.
 func (client *PingClientLegacy) Ping() (LegacyPingInfos, int, error) {
 	return client.ping(false)
 }
 
 // Ping1_6_4 sends a legacy ping request to the server (using 1.6+ SLP protocol), and returns various informations about the server, and the latency in ms.
-// If the minecraft server has a version <= 1.3, ProtocolNumber and MinecraftVersion are not set.
+// Note that on vanilla servers < 1.4.x, this protocol usually don't work.
 func (client *PingClientLegacy) Ping1_6_4() (LegacyPingInfos, int, error) {
 	return client.ping(true)
 }

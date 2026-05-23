@@ -169,13 +169,14 @@ type PingClient struct {
 
 // NewClient returns a well-formed *PingClient.
 // ClientGUID is set to a random value.
+// Unlike other clients, bedrock-ping one is created with a SkipSRVLookup option set to true, as there is normally no such mechanism on bedrock servers.
 func NewClient(hostname string, port int) *PingClient {
 	return &PingClient{
 		hostname:   hostname,
 		port:       port,
 		ClientGUID: uint64(rand.Int()),
 
-		SkipSRVLookup:                false,
+		SkipSRVLookup:                true,
 		ForceUDPProtocolForSRVLookup: false,
 		DialTimeout:                  5 * time.Second,
 		ReadTimeout:                  5 * time.Second,

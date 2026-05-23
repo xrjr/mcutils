@@ -1,13 +1,189 @@
 name: tests
+
 on: push
+
+env:
+  go-version: stable
+
 jobs:
-  test:
+  unit-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
         with:
-          go-version: 1.17.3
-      - run: go version
+          go-version: ${{ env.go-version }}
       - run: go test ./...
-      - run: go build ./cmd/mcutils
+  
+  cli-build-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.go-version }}
+      - run: go build -ldflags="-w -s" ./cmd/mcutils
+      - run: ./mcutils version
+  
+  srv-lookup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.go-version }}
+      - run: go build -ldflags="-w -s" ./cmd/mcutils
+      - run: docker run --rm -d -e EULA=true -p 25565:25565 -e VERSION=latest --name test-minecraft-server itzg/minecraft-server
+      - run: |
+          sudo apt install dnsmasq -y
+
+          sudo systemctl stop systemd-resolved || true
+          sudo systemctl disable systemd-resolved || true
+          sleep 1
+
+          sudo rm -f /etc/resolv.conf
+          sudo tee /etc/dnsmasq.conf <<'EOL'
+          server=8.8.8.8
+          server=8.8.4.4
+          srv-host=_minecraft._tcp.xrjr.mcutils,localhost,25565,0,5
+          EOL
+      - run: echo "nameserver 127.0.0.1" | sudo tee /etc/resolv.conf
+      - run: sudo systemctl restart dnsmasq
+      - run: sleep 60
+      - run: ./mcutils ping xrjr.mcutils 25565
+  
+  vanilla-ping-legacy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - 1.2.5
+          - 1.4.7
+          - 1.5.2
+          - 1.6.4
+          - 1.7.10
+          - latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.go-version }}
+      - run: go build -ldflags="-w -s" ./cmd/mcutils
+      - run: docker run --rm -d -e EULA=true -p 25565:25565 -e VERSION=${{ matrix.version }} --name test-minecraft-server itzg/minecraft-server
+      - run: sleep 60
+      - run: ./mcutils ping-legacy localhost 25565
+      - run: docker stop test-minecraft-server
+  
+  vanilla-ping-legacy-1-6-4:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - 1.6.4
+          - 1.7.10
+          - latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.go-version }}
+      - run: go build -ldflags="-w -s" ./cmd/mcutils
+      - run: docker run --rm -d -e EULA=true -p 25565:25565 -e VERSION=${{ matrix.version }} --name test-minecraft-server itzg/minecraft-server
+      - run: sleep 60
+      - run: ./mcutils ping-legacy-1.6.4 localhost 25565
+      - run: docker stop test-minecraft-server
+  
+  vanilla-ping-slp:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - 1.7.10
+          - latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.go-version }}
+      - run: go build -ldflags="-w -s" ./cmd/mcutils
+      - run: docker run --rm -d -e EULA=true -p 25565:25565 -e VERSION=${{ matrix.version }} --name test-minecraft-server itzg/minecraft-server
+      - run: sleep 60
+      - run: ./mcutils ping localhost 25565
+      - run: docker stop test-minecraft-server
+
+  vanilla-query-basic:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - 1.2.5
+          - 1.6.4
+          - 1.7.10
+          - latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.go-version }}
+      - run: go build -ldflags="-w -s" ./cmd/mcutils
+      - run: docker run --rm -d -e EULA=true -p 25565:25565/udp -e VERSION=${{ matrix.version }} -e ENABLE_QUERY=true --name test-minecraft-server itzg/minecraft-server
+      - run: sleep 60
+      - run: ./mcutils query-basic localhost 25565
+      - run: docker stop test-minecraft-server
+  
+  vanilla-query-full:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - 1.2.5
+          - 1.6.4
+          - 1.7.10
+          - latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.go-version }}
+      - run: go build -ldflags="-w -s" ./cmd/mcutils
+      - run: docker run --rm -d -e EULA=true -p 25565:25565/udp -e VERSION=${{ matrix.version }} -e ENABLE_QUERY=true --name test-minecraft-server itzg/minecraft-server
+      - run: sleep 60
+      - run: ./mcutils query-full localhost 25565
+      - run: docker stop test-minecraft-server
+  
+  vanilla-rcon:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - 1.2.5
+          - 1.6.4
+          - 1.7.10
+          - latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.go-version }}
+      - run: go build -ldflags="-w -s" ./cmd/mcutils
+      - run: docker run --rm -d -e EULA=true -p 25575:25575 -e VERSION=${{ matrix.version }} -e RCON_PASSWORD=password --name test-minecraft-server itzg/minecraft-server
+      - run: sleep 60
+      - run: ./mcutils rcon localhost 25575 password "say hello"
+      - run: docker stop test-minecraft-server
+  
+  vanilla-bedrock-ping:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.go-version }}
+      - run: go build -ldflags="-w -s" ./cmd/mcutils
+      - run: docker run --rm -d -e EULA=TRUE -e VERSION=${{ matrix.version }} -p 19132:19132/udp --name test-minecraft-server itzg/minecraft-bedrock-server
+      - run: sleep 60
+      - run: ./mcutils ping-bedrock localhost 19132
+      - run: docker stop test-minecraft-server
