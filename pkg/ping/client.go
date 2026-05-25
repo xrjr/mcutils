@@ -14,6 +14,7 @@ const (
 	UnknownProtocolVersion int32  = -1
 	HandshakePacketID      uint32 = 0
 	PingPacketID           uint32 = 1
+	NextStateStatus        uint32 = 1
 )
 
 var (
@@ -32,7 +33,7 @@ func generateHandshakeRequest(hostname string, port uint16) networking.Output {
 
 	out.WriteBigEndianInt16(port)
 
-	out.WriteVarInt(1)
+	out.WriteVarInt(int32(NextStateStatus))
 
 	return out
 }
