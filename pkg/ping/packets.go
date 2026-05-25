@@ -47,7 +47,7 @@ type pongResponse struct {
 func transformToPacket(out networking.Output) networking.Output {
 	var packetOut networking.Output = networking.NewOutput()
 
-	packetOut.WriteUVarInt(uint64(len(out.Bytes())))
+	packetOut.WriteVarInt(int32(len(out.Bytes())))
 	packetOut.WriteBytes(out.Bytes())
 
 	return packetOut
@@ -56,7 +56,7 @@ func transformToPacket(out networking.Output) networking.Output {
 // emptyPacket generates an empty packet ready to be sent.
 func emptyPacket(packetID uint32) networking.Output {
 	out := networking.NewOutput()
-	out.WriteUVarInt(uint64(packetID))
+	out.WriteVarInt(int32(packetID))
 	return transformToPacket(out)
 }
 

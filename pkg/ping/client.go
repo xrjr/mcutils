@@ -24,15 +24,15 @@ var (
 func generateHandshakeRequest(hostname string, port uint16) networking.Output {
 	out := networking.NewOutput()
 
-	out.WriteUVarInt(uint64(HandshakePacketID))
+	out.WriteVarInt(int32(HandshakePacketID))
 
-	out.WriteVarInt(int64(UnknownProtocolVersion))
+	out.WriteVarInt(int32(UnknownProtocolVersion))
 
 	out.WriteString(hostname)
 
 	out.WriteBigEndianInt16(port)
 
-	out.WriteUVarInt(1)
+	out.WriteVarInt(1)
 
 	return out
 }
@@ -41,7 +41,7 @@ func generateHandshakeRequest(hostname string, port uint16) networking.Output {
 func parseHandshakeResponse(in networking.Input) (*handshakeResponse, error) {
 	var hsRes handshakeResponse
 
-	length, err := in.ReadUVarInt()
+	length, err := in.ReadVarInt()
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func parseHandshakeResponse(in networking.Input) (*handshakeResponse, error) {
 	}
 	_in := networking.NewInput(bytes.NewReader(content))
 
-	packetID, err := _in.ReadUVarInt()
+	packetID, err := _in.ReadVarInt()
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func parseHandshakeResponse(in networking.Input) (*handshakeResponse, error) {
 func generatePingRequest() networking.Output {
 	out := networking.NewOutput()
 
-	out.WriteUVarInt(uint64(PingPacketID))
+	out.WriteVarInt(int32(PingPacketID))
 
 	out.WriteBigEndianInt64(uint64(time.Now().UnixMilli()))
 
@@ -93,7 +93,7 @@ func generatePingRequest() networking.Output {
 func parsePongResponse(in networking.Input) (*pongResponse, error) {
 	var pongRes pongResponse
 
-	length, err := in.ReadUVarInt()
+	length, err := in.ReadVarInt()
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func parsePongResponse(in networking.Input) (*pongResponse, error) {
 	}
 	_in := networking.NewInput(bytes.NewReader(content))
 
-	packetID, err := _in.ReadUVarInt()
+	packetID, err := _in.ReadVarInt()
 	if err != nil {
 		return nil, err
 	}

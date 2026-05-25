@@ -2,6 +2,11 @@ package networking
 
 import "encoding/binary"
 
+const (
+	SEGMENT_BITS byte = 0x7F
+	CONTINUE_BIT byte = 0x80
+)
+
 // Output represents a connection output (i.e. what's written to the connection). It wraps several helpers to write to this output.
 type Output struct {
 	buf []byte
@@ -83,44 +88,37 @@ func (out *Output) WriteLittleEndianInt64(i uint64) {
 	out.WriteBytes(int64Buf)
 }
 
-// WriteUVarInt64 writes an unsigned varint to the output.
-func (out *Output) WriteUVarInt64(i uint64) {
-	uvarintBuf := make([]byte, binary.MaxVarintLen64)
-	n := binary.PutUvarint(uvarintBuf, uint64(i))
-	out.WriteBytes(uvarintBuf[:n])
+// WriteVarInt writes a varint to the output.
+func (out *Output) WriteVarInt(i int32) {
+	v := uint32(i)
+	for c := 0; c < 5; c++ {
+		currentByte := byte(v & uint32(SEGMENT_BITS))
+		v >>= 7
+		if v != 0 {
+			currentByte |= CONTINUE_BIT
+		}
+		out.WriteByte(currentByte)
+
+		if v == 0 {
+			return
+		}
+	}
 }
 
-// WriteVarInt64 writes a signed varint to the output (non zigzag).
-func (out *Output) WriteVarInt64(i int64) {
-	varintBuf := make([]byte, binary.MaxVarintLen64)
-	n := binary.PutUvarint(varintBuf, uint64(i))
-	out.WriteBytes(varintBuf[:n])
-}
-
-// WriteUVarInt32 writes an unsigned varint to the output.
-func (out *Output) WriteUVarInt32(i uint32) {
-	uvarintBuf := make([]byte, binary.MaxVarintLen32)
-	n := binary.PutUvarint(uvarintBuf, uint64(i))
-	out.WriteBytes(uvarintBuf[:n])
-}
-
-// WriteVarInt32 writes a signed varint to the output (non zigzag).
-func (out *Output) WriteVarInt32(i int32) {
-	varintBuf := make([]byte, binary.MaxVarintLen32)
-	n := binary.PutUvarint(varintBuf, uint64(i))
-	out.WriteBytes(varintBuf[:n])
-}
-
-// WriteUVarInt writes an unsigned varint32 to the output.
-// uint64 will be casted to uint32, as it is minecraft largest type length.
-func (out *Output) WriteUVarInt(i uint64) {
-	out.WriteUVarInt32(uint32(i))
-}
-
-// WriteVarInt writes a signed varint32 to the output (non zigzag).
-// int64 will be casted to int32, as it is minecraft largest type length.
-func (out *Output) WriteVarInt(i int64) {
-	out.WriteVarInt32(int32(i))
+// WriteVarLong writes a varlong to the output.
+func (out *Output) WriteVarLong(i int64) {
+	v := uint64(i)
+	for c := 0; c < 10; c++ {
+		currentByte := byte(v & uint64(SEGMENT_BITS))
+		v >>= 7
+		if v != 0 {
+			currentByte |= CONTINUE_BIT
+		}
+		out.WriteByte(currentByte)
+		if v == 0 {
+			return
+		}
+	}
 }
 
 // WriteNullTerminatedString writes a null terminated string the the output.
@@ -132,7 +130,7 @@ func (out *Output) WriteNullTerminatedString(s string) {
 // WriteString writes a standard minecraft protocol string to the output.
 // It is a UTF-8 string prefixed with its size in bytes as an unsigned varint.
 func (out *Output) WriteString(s string) {
-	out.WriteUVarInt32(uint32(len(s)))
+	out.WriteVarInt(int32(len(s)))
 	out.WriteBytes([]byte(s))
 }
 

@@ -3,7 +3,13 @@ package networking
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"io"
+)
+
+var (
+	ErrVarIntTooBig  error = errors.New("VarInt is too big")
+	ErrVarLongTooBig error = errors.New("VarLong is too big")
 )
 
 // Input represents a connection input (i.e. what's read from the connection). It wraps several helpers to read from this input.
@@ -106,24 +112,36 @@ func (in *Input) ReadLittleEndianInt64() (uint64, error) {
 	return binary.LittleEndian.Uint64(buf[0:8]), nil
 }
 
-// ReadUVarInt64 tries to read an unsigned varint from the input.
-func (in *Input) ReadUVarInt() (uint64, error) {
-	uvarint, err := binary.ReadUvarint(in)
-	if err != nil {
-		return 0, err
+// ReadVarInt tries to read a varint from the input.
+func (in *Input) ReadVarInt() (int32, error) {
+	var result uint32
+	for i := 0; i < 5; i++ {
+		b, err := in.ReadByte()
+		if err != nil {
+			return 0, err
+		}
+		result |= uint32(b&SEGMENT_BITS) << (7 * i)
+		if b&CONTINUE_BIT == 0 {
+			return int32(result), nil
+		}
 	}
-
-	return uvarint, nil
+	return 0, ErrVarIntTooBig
 }
 
-// ReadVarInt64 tries to read a signed varint from the input (non zigzag).
-func (in *Input) ReadVarInt() (int64, error) {
-	uvarint, err := binary.ReadUvarint(in)
-	if err != nil {
-		return 0, err
+// ReadVarInt tries to read a varlong from the input.
+func (in *Input) ReadVarLong() (int64, error) {
+	var result uint64
+	for i := 0; i < 10; i++ {
+		b, err := in.ReadByte()
+		if err != nil {
+			return 0, err
+		}
+		result |= uint64(b&SEGMENT_BITS) << (7 * i)
+		if b&CONTINUE_BIT == 0 {
+			return int64(result), nil
+		}
 	}
-
-	return int64(uvarint), nil
+	return 0, ErrVarLongTooBig
 }
 
 // ReadNullTerminatedString tries to read a null terminated string from the input.
@@ -149,7 +167,7 @@ func (in *Input) ReadNullTerminatedString() (string, error) {
 // ReadString tries to read a standard minecraft protocol string from the input.
 // It is a UTF-8 string prefixed with its size in bytes as an unsigned varint.
 func (in *Input) ReadString() (string, error) {
-	length, err := in.ReadUVarInt()
+	length, err := in.ReadVarInt()
 	if err != nil {
 		return "", err
 	}

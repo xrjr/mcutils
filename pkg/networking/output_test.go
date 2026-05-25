@@ -1,6 +1,8 @@
 package networking
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestBytes(t *testing.T) {
 	inputs := [][]byte{
@@ -290,19 +292,39 @@ func TestWriteLittleEndianInt64(t *testing.T) {
 	}
 }
 
-func TestWriteUVarInt(t *testing.T) {
-	inputs := []uint64{
-		1354872603950807649,
+func TestWriteVarInt(t *testing.T) {
+	inputs := []int32{
+		0,
+		1,
+		2,
+		127,
+		128,
+		255,
+		25565,
+		2097151,
+		2147483647,
+		-1,
+		-2147483648,
 	}
 	expectedValues := [][]byte{
-		{225, 244, 149, 147, 199, 174, 222, 230, 18},
+		{0},
+		{1},
+		{2},
+		{127},
+		{128, 1},
+		{255, 1},
+		{221, 199, 1},
+		{255, 255, 127},
+		{255, 255, 255, 255, 7},
+		{255, 255, 255, 255, 15},
+		{128, 128, 128, 128, 8},
 	}
 
 	var out Output
 
 	for i := 0; i < len(inputs); i++ {
 		out = NewOutput()
-		out.WriteUVarInt(inputs[i])
+		out.WriteVarInt(inputs[i])
 
 		if !BytesEqual(out.buf, expectedValues[i]) {
 			t.Errorf("Value %d: Expected %v got %v.", i, expectedValues[i], out.buf)
@@ -310,19 +332,39 @@ func TestWriteUVarInt(t *testing.T) {
 	}
 }
 
-func TestWriteVarInt64(t *testing.T) {
+func TestWriteVarLong(t *testing.T) {
 	inputs := []int64{
-		1354872603950807649,
+		0,
+		1,
+		2,
+		127,
+		128,
+		255,
+		2147483647,
+		9223372036854775807,
+		-1,
+		-2147483648,
+		-9223372036854775808,
 	}
 	expectedValues := [][]byte{
-		{225, 244, 149, 147, 199, 174, 222, 230, 18},
+		{0},
+		{1},
+		{2},
+		{127},
+		{128, 1},
+		{255, 1},
+		{255, 255, 255, 255, 7},
+		{255, 255, 255, 255, 255, 255, 255, 255, 127},
+		{255, 255, 255, 255, 255, 255, 255, 255, 255, 1},
+		{128, 128, 128, 128, 248, 255, 255, 255, 255, 1},
+		{128, 128, 128, 128, 128, 128, 128, 128, 128, 1},
 	}
 
 	var out Output
 
 	for i := 0; i < len(inputs); i++ {
 		out = NewOutput()
-		out.WriteVarInt64(inputs[i])
+		out.WriteVarLong(inputs[i])
 
 		if !BytesEqual(out.buf, expectedValues[i]) {
 			t.Errorf("Value %d: Expected %v got %v.", i, expectedValues[i], out.buf)
