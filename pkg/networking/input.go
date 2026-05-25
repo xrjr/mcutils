@@ -116,14 +116,14 @@ func (in *Input) ReadUVarInt() (uint64, error) {
 	return uvarint, nil
 }
 
-// ReadVarInt64 tries to read a signed varint from the input.
+// ReadVarInt64 tries to read a signed varint from the input (non zigzag).
 func (in *Input) ReadVarInt() (int64, error) {
-	varint, err := binary.ReadVarint(in)
+	uvarint, err := binary.ReadUvarint(in)
 	if err != nil {
 		return 0, err
 	}
 
-	return varint, nil
+	return int64(uvarint), nil
 }
 
 // ReadNullTerminatedString tries to read a null terminated string from the input.

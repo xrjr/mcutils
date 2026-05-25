@@ -90,10 +90,10 @@ func (out *Output) WriteUVarInt(i uint64) {
 	out.WriteBytes(uvarintBuf[:n])
 }
 
-// WriteVarInt64 writes a signed varint to the output.
+// WriteVarInt64 writes a signed varint to the output (non zigzag).
 func (out *Output) WriteVarInt(i int64) {
 	varintBuf := make([]byte, binary.MaxVarintLen64)
-	n := binary.PutVarint(varintBuf, int64(i))
+	n := binary.PutUvarint(varintBuf, uint64(i))
 	out.WriteBytes(varintBuf[:n])
 }
 

@@ -236,11 +236,15 @@ func TestReadUVarInt(t *testing.T) {
 func TestReadVarInt(t *testing.T) {
 	inputs := []Input{
 		NewInput(bytes.NewBuffer([]byte{232, 201, 171, 166, 15})),
+		NewInput(bytes.NewBuffer([]byte{140, 155, 234, 172, 248, 255, 255, 255, 255, 1})),
 		NewInput(bytes.NewBuffer([]byte{231, 201, 171, 166, 15})),
 		NewInput(bytes.NewBuffer([]byte{231, 201, 171, 166})),
+		NewInput(bytes.NewBuffer([]byte{0})),
+		NewInput(bytes.NewBuffer([]byte{1})),
+		NewInput(bytes.NewBuffer([]byte{255, 255, 255, 255, 255, 255, 255, 255, 255, 1})),
 	}
-	expectedValues := []int64{2053468788, -2053468788, 0}
-	expectedErrors := []bool{false, false, true}
+	expectedValues := []int64{4106937576, -2053468788, 4106937575, 0, 0, 1, -1}
+	expectedErrors := []bool{false, false, false, true, false, false, false}
 
 	var res int64
 	var err error

@@ -315,7 +315,7 @@ func TestWriteVarInt(t *testing.T) {
 		1354872603950807649,
 	}
 	expectedValues := [][]byte{
-		{194, 233, 171, 166, 142, 221, 188, 205, 37},
+		{225, 244, 149, 147, 199, 174, 222, 230, 18},
 	}
 
 	var out Output
