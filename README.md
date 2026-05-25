@@ -18,7 +18,7 @@ All protocols are implemented in pure Go, without any external dependency beside
 
 All protocols have been implemented using [minecraft.wiki](https://minecraft.wiki). All of them are 100% compliant with the standard described there.
 
-This project also contains an helper in communication with tcp/udp, called `pkg/networking`.
+This project also contains an helper in communication with tcp/udp, called `pkg/networking`. While it is published as a package, it is primarly used in this library and its API should not be considered stable.
 
 ### Supported protocols
 
