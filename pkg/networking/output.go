@@ -84,17 +84,43 @@ func (out *Output) WriteLittleEndianInt64(i uint64) {
 }
 
 // WriteUVarInt64 writes an unsigned varint to the output.
-func (out *Output) WriteUVarInt(i uint64) {
+func (out *Output) WriteUVarInt64(i uint64) {
 	uvarintBuf := make([]byte, binary.MaxVarintLen64)
 	n := binary.PutUvarint(uvarintBuf, uint64(i))
 	out.WriteBytes(uvarintBuf[:n])
 }
 
 // WriteVarInt64 writes a signed varint to the output (non zigzag).
-func (out *Output) WriteVarInt(i int64) {
+func (out *Output) WriteVarInt64(i int64) {
 	varintBuf := make([]byte, binary.MaxVarintLen64)
 	n := binary.PutUvarint(varintBuf, uint64(i))
 	out.WriteBytes(varintBuf[:n])
+}
+
+// WriteUVarInt32 writes an unsigned varint to the output.
+func (out *Output) WriteUVarInt32(i uint32) {
+	uvarintBuf := make([]byte, binary.MaxVarintLen32)
+	n := binary.PutUvarint(uvarintBuf, uint64(i))
+	out.WriteBytes(uvarintBuf[:n])
+}
+
+// WriteVarInt32 writes a signed varint to the output (non zigzag).
+func (out *Output) WriteVarInt32(i int32) {
+	varintBuf := make([]byte, binary.MaxVarintLen32)
+	n := binary.PutUvarint(varintBuf, uint64(i))
+	out.WriteBytes(varintBuf[:n])
+}
+
+// WriteUVarInt writes an unsigned varint32 to the output.
+// uint64 will be casted to uint32, as it is minecraft largest type length.
+func (out *Output) WriteUVarInt(i uint64) {
+	out.WriteUVarInt32(uint32(i))
+}
+
+// WriteVarInt writes a signed varint32 to the output (non zigzag).
+// int64 will be casted to int32, as it is minecraft largest type length.
+func (out *Output) WriteVarInt(i int64) {
+	out.WriteVarInt32(int32(i))
 }
 
 // WriteNullTerminatedString writes a null terminated string the the output.
@@ -106,7 +132,7 @@ func (out *Output) WriteNullTerminatedString(s string) {
 // WriteString writes a standard minecraft protocol string to the output.
 // It is a UTF-8 string prefixed with its size in bytes as an unsigned varint.
 func (out *Output) WriteString(s string) {
-	out.WriteUVarInt(uint64(len(s)))
+	out.WriteUVarInt32(uint32(len(s)))
 	out.WriteBytes([]byte(s))
 }
 

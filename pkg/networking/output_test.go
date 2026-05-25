@@ -310,7 +310,7 @@ func TestWriteUVarInt(t *testing.T) {
 	}
 }
 
-func TestWriteVarInt(t *testing.T) {
+func TestWriteVarInt64(t *testing.T) {
 	inputs := []int64{
 		1354872603950807649,
 	}
@@ -322,7 +322,7 @@ func TestWriteVarInt(t *testing.T) {
 
 	for i := 0; i < len(inputs); i++ {
 		out = NewOutput()
-		out.WriteVarInt(inputs[i])
+		out.WriteVarInt64(inputs[i])
 
 		if !BytesEqual(out.buf, expectedValues[i]) {
 			t.Errorf("Value %d: Expected %v got %v.", i, expectedValues[i], out.buf)
