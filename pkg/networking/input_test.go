@@ -209,20 +209,52 @@ func TestReadLittleEndianInt64(t *testing.T) {
 	}
 }
 
-func TestReadUVarInt(t *testing.T) {
+func TestReadVarInt(t *testing.T) {
 	inputs := []Input{
-		NewInput(bytes.NewBuffer([]byte{232, 201, 171, 166, 15})),
-		NewInput(bytes.NewBuffer([]byte{231, 201, 171, 166, 15})),
-		NewInput(bytes.NewBuffer([]byte{231, 201, 171, 166})),
+		NewInput(bytes.NewBuffer([]byte{0})),
+		NewInput(bytes.NewBuffer([]byte{1})),
+		NewInput(bytes.NewBuffer([]byte{2})),
+		NewInput(bytes.NewBuffer([]byte{127})),
+		NewInput(bytes.NewBuffer([]byte{128, 1})),
+		NewInput(bytes.NewBuffer([]byte{255, 1})),
+		NewInput(bytes.NewBuffer([]byte{221, 199, 1})),
+		NewInput(bytes.NewBuffer([]byte{255, 255, 127})),
+		NewInput(bytes.NewBuffer([]byte{255, 255, 255, 255, 7})),
+		NewInput(bytes.NewBuffer([]byte{255, 255, 255, 255, 15})),
+		NewInput(bytes.NewBuffer([]byte{128, 128, 128, 128, 8})),
 	}
-	expectedValues := []uint64{4106937576, 4106937575, 0}
-	expectedErrors := []bool{false, false, true}
+	expectedValues := []int32{
+		0,
+		1,
+		2,
+		127,
+		128,
+		255,
+		25565,
+		2097151,
+		2147483647,
+		-1,
+		-2147483648,
+	}
+	expectedErrors := []bool{
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+	}
 
-	var res uint64
+	var res int32
 	var err error
 
 	for i := 0; i < len(inputs); i++ {
-		res, err = inputs[i].ReadUVarInt()
+		res, err = inputs[i].ReadVarInt()
 
 		if res != expectedValues[i] {
 			t.Errorf("Value %d: Expected %v got %v.", i, expectedValues[i], res)
@@ -233,20 +265,52 @@ func TestReadUVarInt(t *testing.T) {
 	}
 }
 
-func TestReadVarInt(t *testing.T) {
+func TestReadVarLong(t *testing.T) {
 	inputs := []Input{
-		NewInput(bytes.NewBuffer([]byte{232, 201, 171, 166, 15})),
-		NewInput(bytes.NewBuffer([]byte{231, 201, 171, 166, 15})),
-		NewInput(bytes.NewBuffer([]byte{231, 201, 171, 166})),
+		NewInput(bytes.NewBuffer([]byte{0})),
+		NewInput(bytes.NewBuffer([]byte{1})),
+		NewInput(bytes.NewBuffer([]byte{2})),
+		NewInput(bytes.NewBuffer([]byte{127})),
+		NewInput(bytes.NewBuffer([]byte{128, 1})),
+		NewInput(bytes.NewBuffer([]byte{255, 1})),
+		NewInput(bytes.NewBuffer([]byte{255, 255, 255, 255, 7})),
+		NewInput(bytes.NewBuffer([]byte{255, 255, 255, 255, 255, 255, 255, 255, 127})),
+		NewInput(bytes.NewBuffer([]byte{255, 255, 255, 255, 255, 255, 255, 255, 255, 1})),
+		NewInput(bytes.NewBuffer([]byte{128, 128, 128, 128, 248, 255, 255, 255, 255, 1})),
+		NewInput(bytes.NewBuffer([]byte{128, 128, 128, 128, 128, 128, 128, 128, 128, 1})),
 	}
-	expectedValues := []int64{2053468788, -2053468788, 0}
-	expectedErrors := []bool{false, false, true}
+	expectedValues := []int64{
+		0,
+		1,
+		2,
+		127,
+		128,
+		255,
+		2147483647,
+		9223372036854775807,
+		-1,
+		-2147483648,
+		-9223372036854775808,
+	}
+	expectedErrors := []bool{
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+	}
 
 	var res int64
 	var err error
 
 	for i := 0; i < len(inputs); i++ {
-		res, err = inputs[i].ReadVarInt()
+		res, err = inputs[i].ReadVarLong()
 
 		if res != expectedValues[i] {
 			t.Errorf("Value %d: Expected %v got %v.", i, expectedValues[i], res)

@@ -2,6 +2,11 @@ package networking
 
 import "encoding/binary"
 
+const (
+	VARINT_SEGMENT_BITS byte = 0x7F
+	VARINT_CONTINUE_BIT byte = 0x80
+)
+
 // Output represents a connection output (i.e. what's written to the connection). It wraps several helpers to write to this output.
 type Output struct {
 	buf []byte
@@ -83,18 +88,37 @@ func (out *Output) WriteLittleEndianInt64(i uint64) {
 	out.WriteBytes(int64Buf)
 }
 
-// WriteUVarInt64 writes an unsigned varint to the output.
-func (out *Output) WriteUVarInt(i uint64) {
-	uvarintBuf := make([]byte, binary.MaxVarintLen64)
-	n := binary.PutUvarint(uvarintBuf, uint64(i))
-	out.WriteBytes(uvarintBuf[:n])
+// WriteVarInt writes a varint to the output.
+func (out *Output) WriteVarInt(i int32) {
+	v := uint32(i)
+	for c := 0; c < 5; c++ {
+		currentByte := byte(v & uint32(VARINT_SEGMENT_BITS))
+		v >>= 7
+		if v != 0 {
+			currentByte |= VARINT_CONTINUE_BIT
+		}
+		out.WriteByte(currentByte)
+
+		if v == 0 {
+			return
+		}
+	}
 }
 
-// WriteVarInt64 writes a signed varint to the output.
-func (out *Output) WriteVarInt(i int64) {
-	varintBuf := make([]byte, binary.MaxVarintLen64)
-	n := binary.PutVarint(varintBuf, int64(i))
-	out.WriteBytes(varintBuf[:n])
+// WriteVarLong writes a varlong to the output.
+func (out *Output) WriteVarLong(i int64) {
+	v := uint64(i)
+	for c := 0; c < 10; c++ {
+		currentByte := byte(v & uint64(VARINT_SEGMENT_BITS))
+		v >>= 7
+		if v != 0 {
+			currentByte |= VARINT_CONTINUE_BIT
+		}
+		out.WriteByte(currentByte)
+		if v == 0 {
+			return
+		}
+	}
 }
 
 // WriteNullTerminatedString writes a null terminated string the the output.
@@ -106,7 +130,7 @@ func (out *Output) WriteNullTerminatedString(s string) {
 // WriteString writes a standard minecraft protocol string to the output.
 // It is a UTF-8 string prefixed with its size in bytes as an unsigned varint.
 func (out *Output) WriteString(s string) {
-	out.WriteUVarInt(uint64(len(s)))
+	out.WriteVarInt(int32(len(s)))
 	out.WriteBytes([]byte(s))
 }
 
