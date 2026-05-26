@@ -3,8 +3,8 @@ package networking
 import "encoding/binary"
 
 const (
-	SEGMENT_BITS byte = 0x7F
-	CONTINUE_BIT byte = 0x80
+	VARINT_SEGMENT_BITS byte = 0x7F
+	VARINT_CONTINUE_BIT byte = 0x80
 )
 
 // Output represents a connection output (i.e. what's written to the connection). It wraps several helpers to write to this output.
@@ -92,10 +92,10 @@ func (out *Output) WriteLittleEndianInt64(i uint64) {
 func (out *Output) WriteVarInt(i int32) {
 	v := uint32(i)
 	for c := 0; c < 5; c++ {
-		currentByte := byte(v & uint32(SEGMENT_BITS))
+		currentByte := byte(v & uint32(VARINT_SEGMENT_BITS))
 		v >>= 7
 		if v != 0 {
-			currentByte |= CONTINUE_BIT
+			currentByte |= VARINT_CONTINUE_BIT
 		}
 		out.WriteByte(currentByte)
 
@@ -109,10 +109,10 @@ func (out *Output) WriteVarInt(i int32) {
 func (out *Output) WriteVarLong(i int64) {
 	v := uint64(i)
 	for c := 0; c < 10; c++ {
-		currentByte := byte(v & uint64(SEGMENT_BITS))
+		currentByte := byte(v & uint64(VARINT_SEGMENT_BITS))
 		v >>= 7
 		if v != 0 {
-			currentByte |= CONTINUE_BIT
+			currentByte |= VARINT_CONTINUE_BIT
 		}
 		out.WriteByte(currentByte)
 		if v == 0 {

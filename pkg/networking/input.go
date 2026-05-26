@@ -120,8 +120,8 @@ func (in *Input) ReadVarInt() (int32, error) {
 		if err != nil {
 			return 0, err
 		}
-		result |= uint32(b&SEGMENT_BITS) << (7 * i)
-		if b&CONTINUE_BIT == 0 {
+		result |= uint32(b&VARINT_SEGMENT_BITS) << (7 * i)
+		if b&VARINT_CONTINUE_BIT == 0 {
 			return int32(result), nil
 		}
 	}
@@ -136,8 +136,8 @@ func (in *Input) ReadVarLong() (int64, error) {
 		if err != nil {
 			return 0, err
 		}
-		result |= uint64(b&SEGMENT_BITS) << (7 * i)
-		if b&CONTINUE_BIT == 0 {
+		result |= uint64(b&VARINT_SEGMENT_BITS) << (7 * i)
+		if b&VARINT_CONTINUE_BIT == 0 {
 			return int64(result), nil
 		}
 	}
